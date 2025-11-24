@@ -5,7 +5,7 @@
     <img src="https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/iNE4dC3V9z7oM5kF5d0e.png" alt="Available in the Chrome Web Store" width="206" height="58">
   </a>
   <br><br>
-  <img src="assets/icon-128.png" alt="Memento Mori Logo" width="128" height="128">
+  <img src="assets/banner.jpeg" alt="Memento Mori Logo" width="128" height="128">
   <h3>Your Life Expectancy vs. Screen Time</h3>
   <p>A productivity extension that reminds you of life's brevity while blocking distracting websites.</p>
   <p>
