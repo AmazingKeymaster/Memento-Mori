@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memento Mori Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f1b3c;
+            font-family: 'Crimson Text', serif;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(15, 27, 60, 0.6);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .header h1 {
+            font-family: 'UnifrakturCook', serif;
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #ffd700;
+            text-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(255, 215, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .header .candle-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: rgba(30, 58, 138, 0.2);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .section-title {
+            font-family: 'UnifrakturCook', serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(30, 58, 138, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(30, 58, 138, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            accent-color: #ffd700;
+            transform: scale(1.2);
+        }
+
+        .checkbox-group label {
+            font-size: 16px;
+            color: #e0e0e0;
+            cursor: pointer;
+        }
+
+        .privacy-notice {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #e2e8f0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+            color: #0f1b3c;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(30, 58, 138, 0.3);
+            color: #ffd700;
+            border: 1px solid #ffd700;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .schedule-form {
+            background: rgba(15, 27, 60, 0.4);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .schedule-form h4 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-family: 'UnifrakturCook', serif;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .schedule-item {
+            background: rgba(30, 58, 138, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .schedule-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        .schedule-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-inactive {
+            background: #6c757d;
+            color: white;
+        }
+
+        .support-banner {
+            background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .support-banner h3 {
+            color: white;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .support-banner p {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+        }
+
+        .kofi-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: white;
+            color: #ff5722;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .kofi-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: #28a745;
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        /* Improved Website Adding Interface */
+        .website-input-section {
+            background: rgba(15, 27, 60, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .site-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .site-input-container .site-input {
+            flex: 1;
+        }
+
+        .remove-site-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .remove-site-btn:hover {
+            background: #c82333;
+            transform: scale(1.05);
+        }
+
+        .quick-add-section {
+            margin: 20px 0;
+        }
+
+        .quick-add-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-add-btn {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .quick-add-btn:hover {
+            background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+            color: #0f1b3c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .site-tips {
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .site-tips ul {
+            margin: 10px 0 0 0;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .site-tips li {
+            margin: 5px 0;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+
+        .watermark {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .watermark a {
+            color: #94a3b8;
+            text-decoration: none;
+        }
+
+        .watermark a:hover {
+            color: #ffd700;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .site-input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .site-input {
+            flex: 1;
+        }
+
+        .add-site-btn {
+            padding: 8px 12px;
+            min-width: 40px;
+        }
+
+        .remove-site-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            min-width: 40px;
+        }
+
+        .remove-site-btn:hover {
+            background: #c82333;
+        }
+
+        .locked-input {
+            background: rgba(100, 100, 100, 0.3) !important;
+            border-color: #666 !important;
+            cursor: not-allowed !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="candle-icon">🕯️</div>
+            <h1>Memento Mori Settings</h1>
+            <p>Configure your mortality reminder and website blocking preferences</p>
+        </div>
+
+        <div class="content">
+            <div class="support-banner">
+                <h3>☕ Support Me</h3>
+                <p>Help keep Memento Mori free and support future development</p>
+                <a href="https://ko-fi.com/amazingkeymaster" target="_blank" class="kofi-link">
+                    Support Me on Ko-fi
+                </a>
+            </div>
+
+            <!-- Personal Information Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    👤 Personal Information
+                </h2>
+                
+                <div class="form-group">
+                    <label class="form-label" for="birthdate">Your Birthdate:</label>
+                    <input type="date" id="birthdate" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="userContinent">Your Continent:</label>
+                    <select id="userContinent" class="form-select">
+                        <option value="North America">North America</option>
+                        <option value="Europe">Europe</option>
+                        <option value="Asia">Asia</option>
+                        <option value="South America">South America</option>
+                        <option value="Africa">Africa</option>
+                        <option value="Oceania">Oceania</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="dailyNotifications">
+                    <label for="dailyNotifications">Daily Reminder Notification</label>
+                </div>
+
+                <div class="form-group">
+                    <label for="notificationTime">Notification Time:</label>
+                    <input type="time" id="notificationTime" value="09:00">
+                    <small style="color: #888; font-size: 12px;">Set your preferred time for daily reminders (default: 9:00 AM)</small>
+                </div>
+
+                <div class="privacy-notice">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="privacyAccepted">
+                        <label for="privacyAccepted">I understand that my birthdate and location stay on my device and are only used to personalize the visuals and stats.</label>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="savePersonalBtn">
+                    Save Personal Info
+                </button>
+            </div>
+
+            <!-- Blocking Schedules Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    🚫 Blocking Schedules
+                </h2>
+                
+                <!-- Create New Schedule Button -->
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button class="btn btn-primary" id="showScheduleFormBtn">
+                        ➕ Create New Schedule
+                    </button>
+                </div>
+
+                <!-- New Schedule Form (Hidden by default) -->
+                <div class="schedule-form hidden" id="scheduleForm">
+                    <h4>Create New Schedule</h4>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="scheduleName">Schedule Name:</label>
+                        <input type="text" id="scheduleName" class="form-input" placeholder="e.g., Work Hours">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="startTime">Start Time:</label>
+                            <input type="time" id="startTime" class="form-input" value="09:00">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="endTime">End Time:</label>
+                            <input type="time" id="endTime" class="form-input" value="17:00">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Days of Week:</label>
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px;">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="day0" value="0">
+                                <label for="day0">Sunday</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="day1" value="1">
+                                <label for="day1">Monday</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="day2" value="2">
+                                <label for="day2">Tuesday</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="day3" value="3">
+                                <label for="day3">Wednesday</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="day4" value="4">
+                                <label for="day4">Thursday</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="day5" value="5">
+                                <label for="day5">Friday</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="day6" value="6">
+                                <label for="day6">Saturday</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🚫 Websites to Block:</label>
+                        <div class="website-input-section">
+                            <div id="siteInputs">
+                                <!-- Site inputs will be added dynamically -->
+                            </div>
+                            <div class="quick-add-section">
+                                <p style="margin: 15px 0 10px 0; font-weight: 600; color: #ffd700;">⚡ Quick Add Popular Sites:</p>
+                                <div class="quick-add-buttons">
+                                    <button type="button" class="quick-add-btn" data-site="facebook.com">Facebook</button>
+                                    <button type="button" class="quick-add-btn" data-site="instagram.com">Instagram</button>
+                                    <button type="button" class="quick-add-btn" data-site="twitter.com">Twitter</button>
+                                    <button type="button" class="quick-add-btn" data-site="reddit.com">Reddit</button>
+                                    <button type="button" class="quick-add-btn" data-site="youtube.com">YouTube</button>
+                                    <button type="button" class="quick-add-btn" data-site="tiktok.com">TikTok</button>
+                                    <button type="button" class="quick-add-btn" data-site="netflix.com">Netflix</button>
+                                    <button type="button" class="quick-add-btn" data-site="twitch.tv">Twitch</button>
+                                </div>
+                            </div>
+                            <div class="site-tips">
+                                <p><strong>💡 How website blocking works:</strong></p>
+                                <ul>
+                                    <li>✅ Just type domain names (e.g., "facebook.com")</li>
+                                    <li>✅ Press Enter to add quickly</li>
+                                    <li>✅ Automatically blocks subdomains (www.facebook.com, m.facebook.com)</li>
+                                    <li>✅ Click quick-add buttons for popular distracting sites</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" id="createScheduleBtn">
+                        Create Schedule
+                    </button>
+                    <button class="btn btn-secondary" id="cancelEditBtn" style="display: none;">
+                        Cancel Edit
+                    </button>
+                </div>
+
+                <!-- Existing Schedules -->
+                <div id="schedulesList">
+                    <!-- Schedules will be loaded here -->
+                </div>
+            </div>
+
+            <!-- YouTube Settings Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    📺 YouTube Settings
+                </h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div>
+                        <h4 style="color: #ffd700; margin-bottom: 15px;">Content Hiding</h4>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hideHome">
+                            <label for="hideHome">Hide Home Page</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hideShorts">
+                            <label for="hideShorts">Hide Shorts</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hideComments">
+                            <label for="hideComments">Hide Comments</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hideRecommended">
+                            <label for="hideRecommended">Hide Recommended Videos</label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="color: #ffd700; margin-bottom: 15px;">Navigation</h4>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hideSubscriptions">
+                            <label for="hideSubscriptions">Hide Subscriptions</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hideExplore">
+                            <label for="hideExplore">Hide Explore</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hideTrends">
+                            <label for="hideTrends">Hide Trends</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="hideTopBar">
+                            <label for="hideTopBar">Hide Top Bar</label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="color: #ffd700; margin-bottom: 15px;">Video Experience</h4>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="disableEndCards">
+                            <label for="disableEndCards">Disable End Cards</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="disableAutoplay">
+                            <label for="disableAutoplay">Disable Autoplay</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="blackAndWhite">
+                            <label for="blackAndWhite">Black & White Mode</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="saveYouTubeBtn">
+                    Save YouTube Settings
+                </button>
+            </div>
+
+            <!-- Strict Mode Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    🔒 Strict Mode
+                </h2>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="strictMode">
+                    <label for="strictMode">Enable Strict Mode (Requires PIN to disable schedules or delete extension)</label>
+                </div>
+
+                <div class="form-group" id="pinGroup" style="display: none;">
+                    <label class="form-label" for="strictPin">Set PIN (4 digits):</label>
+                    <input type="password" id="strictPin" class="form-input" maxlength="4" placeholder="0000">
+                </div>
+
+                <button class="btn btn-primary" id="saveStrictBtn">
+                    Save Strict Mode
+                </button>
+                <button class="btn btn-secondary" id="changePinBtn" style="display: none; margin-left: 10px;">
+                    🔑 Change PIN
+                </button>
+            </div>
+        </div>
+
+        <div class="watermark">
+            <a href="https://github.com/amazingkeymaster" target="_blank">
+                Made with ❤️ by amazingkeymaster
+            </a>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script src="utils.js"></script>
+    <script src="options.js"></script>
+</body>
+</html>

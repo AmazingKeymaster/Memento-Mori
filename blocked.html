@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Blocked - Memento Mori</title>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0f1b3c;
+            font-family: 'Crimson Text', serif;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            background: rgba(15, 27, 60, 0.6);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
+        }
+
+        .candle-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: flicker 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.8; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .title {
+            font-family: 'UnifrakturCook', serif;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            color: #ffd700;
+            text-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(255, 215, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .main-message {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            line-height: 1.4;
+            color: #f0f0f0;
+        }
+
+        .quote-container {
+            margin-bottom: 40px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            border-left: 4px solid #ffd700;
+        }
+
+        .quote {
+            font-style: italic;
+            font-size: 24px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            margin-bottom: 15px;
+        }
+
+        .quote-author {
+            font-size: 18px;
+            color: #ffd700;
+            font-weight: 600;
+        }
+
+        .blocked-site {
+            margin-bottom: 30px;
+        }
+
+        .blocked-site-label {
+            font-size: 16px;
+            color: #b8860b;
+            margin-bottom: 5px;
+        }
+
+        .blocked-site-url {
+            font-size: 20px;
+            color: #ff6b6b;
+            font-weight: 600;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 10px 20px;
+            border-radius: 25px;
+            display: inline-block;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd700 0%, #b8860b 100%);
+            color: #0f1b3c;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffd700;
+            border: 2px solid #ffd700;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 215, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .support-section {
+            margin-top: 20px;
+        }
+
+        .kofi-link {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #ff5722;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .kofi-link:hover {
+            background: #e64a19;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
+        }
+
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .watermark a {
+            color: #888;
+            text-decoration: none;
+        }
+
+        .watermark a:hover {
+            color: #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                margin: 0;
+                padding: 20px;
+                border-radius: 15px;
+            }
+            .title {
+                font-size: 28px;
+            }
+            .main-message {
+                font-size: 20px;
+            }
+            .quote {
+                font-size: 16px;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            .btn {
+                width: 100%;
+                max-width: 250px;
+            }
+            .candle-icon {
+                font-size: 48px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            .title {
+                font-size: 24px;
+            }
+            .main-message {
+                font-size: 18px;
+            }
+            .quote {
+                font-size: 14px;
+            }
+            .candle-icon {
+                font-size: 40px;
+            }
+            .blocked-site-url {
+                font-size: 16px;
+                word-break: break-all;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="candle-icon">🕯️</div>
+        
+        <h1 class="title">Memento Mori</h1>
+        
+        <div class="main-message">
+            This site is temporary<br>
+            & so are you
+        </div>
+
+        <div class="blocked-site">
+            <div class="blocked-site-label">Blocked Site:</div>
+            <div class="blocked-site-url" id="blockedSite">This Website</div>
+        </div>
+
+        <div class="quote-container">
+            <div class="quote" id="inspirationalQuote">
+                "The trouble is, you think you have time."
+            </div>
+            <div class="quote-author" id="quoteAuthor">- Buddha</div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="focusBtn">
+                🎯 Focus Mode
+            </button>
+            <button class="btn btn-secondary" id="backBtn">
+                ⬅️ Go Back
+            </button>
+        </div>
+
+        <div class="support-section">
+            <a href="https://ko-fi.com/amazingkeymaster" target="_blank" class="kofi-link">
+                ☕ Support Me
+            </a>
+        </div>
+    </div>
+
+    <div class="watermark">
+        <a href="https://github.com/amazingkeymaster" target="_blank">
+            Made with ❤️ by amazingkeymaster
+        </a>
+    </div>
+
+    <script>
+        const quotes = [
+            { text: "The trouble is, you think you have time.", author: "Buddha" },
+            { text: "Time is what we want most, but what we use worst.", author: "William Penn" },
+            { text: "Yesterday is history, tomorrow is a mystery, today is a gift.", author: "Eleanor Roosevelt" },
+            { text: "Lost time is never found again.", author: "Benjamin Franklin" },
+            { text: "Time flies over us, but leaves its shadow behind.", author: "Nathaniel Hawthorne" },
+            { text: "The two most powerful warriors are patience and time.", author: "Leo Tolstoy" },
+            { text: "Time is the wisest counselor of all.", author: "Pericles" },
+            { text: "Time is the most valuable thing we can spend.", author: "Theophrastus" },
+            { text: "Better three hours too soon than a minute too late.", author: "William Shakespeare" },
+            { text: "Time is what prevents everything from happening at once.", author: "Albert Einstein" }
+        ];
+
+        function displayRandomQuote() {
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            document.getElementById('inspirationalQuote').textContent = randomQuote.text;
+            document.getElementById('quoteAuthor').textContent = `- ${randomQuote.author}`;
+        }
+
+        function getBlockedSite() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const site = urlParams.get('site');
+            const blockedSiteElement = document.getElementById('blockedSite');
+            const blockedSiteContainer = document.querySelector('.blocked-site');
+            
+            if (site && site !== 'null' && site !== 'undefined' && site.trim() !== '') {
+                // Show the actual blocked site
+                blockedSiteElement.textContent = decodeURIComponent(site);
+                blockedSiteContainer.style.display = 'block';
+            } else {
+                // Try to extract hostname from referrer as fallback
+                let hostname = null;
+                
+                if (document.referrer) {
+                    try {
+                        hostname = new URL(document.referrer).hostname;
+                        if (hostname && !hostname.includes('chrome-extension://')) {
+                            blockedSiteElement.textContent = hostname;
+                            blockedSiteContainer.style.display = 'block';
+                            return;
+                        }
+                    } catch (e) {
+                        // Ignore referrer parsing errors
+                    }
+                }
+                
+                // If we can't determine the site, hide the entire section
+                blockedSiteContainer.style.display = 'none';
+            }
+        }
+
+        document.getElementById('focusBtn').addEventListener('click', () => {
+            // Navigate to focus page instead of showing alert
+            const focusUrl = chrome.runtime.getURL('focus.html');
+            window.location.href = focusUrl;
+        });
+
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.history.back();
+        });
+
+        // Initialize page immediately
+        displayRandomQuote();
+        getBlockedSite();
+        
+        // Also initialize on DOM content loaded as backup
+        document.addEventListener('DOMContentLoaded', () => {
+            displayRandomQuote();
+            getBlockedSite();
+        });
+    </script>
+</body>
+</html>

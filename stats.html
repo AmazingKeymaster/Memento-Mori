@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Statistics - Memento Mori</title>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0f1b3c;
+            font-family: 'Crimson Text', serif;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(15, 27, 60, 0.6);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .header h1 {
+            font-family: 'UnifrakturCook', serif;
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #ffd700;
+            text-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(255, 215, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .header .candle-icon {
+            font-size: 32px;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.6));
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(30, 58, 138, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card h3 {
+            font-family: 'UnifrakturCook', serif;
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 700;
+            color: #ffd700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chart-container {
+            background: rgba(30, 58, 138, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+
+        .chart-container h3 {
+            font-family: 'UnifrakturCook', serif;
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .simple-chart {
+            height: 300px;
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            background: rgba(15, 27, 60, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .chart-bar {
+            width: 60px;
+            background: linear-gradient(to top, #ffd700, #ff6b6b);
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .chart-bar:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .chart-value {
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .chart-label {
+            color: #e2e8f0;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .goals-summary {
+            background: rgba(30, 58, 138, 0.3);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .goals-summary h3 {
+            font-family: 'UnifrakturCook', serif;
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .goal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(15, 27, 60, 0.4);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .goal-text {
+            flex: 1;
+            color: #e2e8f0;
+        }
+
+        .goal-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .goal-completed {
+            background: #059669;
+            color: white;
+        }
+
+        .goal-pending {
+            background: #dc2626;
+            color: white;
+        }
+
+        .support-section {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 87, 34, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 87, 34, 0.3);
+        }
+
+        .kofi-link {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #ff5722 0%, #e64a19 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(230, 74, 25, 0.6);
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
+        }
+
+        .kofi-link:hover {
+            background: linear-gradient(135deg, #e64a19 0%, #d84315 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.4);
+        }
+
+        .watermark {
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .watermark a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .watermark a:hover {
+            color: #ffd700;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="candle-icon">📊</div>
+            <h1>Your Mortality Statistics</h1>
+            <p>Track your time and see where your life is going</p>
+        </div>
+
+        <div class="content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Days Remaining</h3>
+                    <div class="stat-number" id="daysRemaining">0</div>
+                    <div class="stat-label">Based on Life Expectancy</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Time Saved</h3>
+                    <div class="stat-number" id="timeSaved">0m</div>
+                    <div class="stat-label">By Active Blocking</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Today's Screen Time</h3>
+                    <div class="stat-number" id="screenTimeToday">0m</div>
+                    <div class="stat-label">Real-Time Tracking</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Goals Completed</h3>
+                    <div class="stat-number" id="goalsCompleted">0</div>
+                    <div class="stat-label">Total Goals</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Productivity Score</h3>
+                    <div class="stat-number" id="productivityScore">0%</div>
+                    <div class="stat-label">Based on Activity</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Weekly Screen Time</h3>
+                <div class="simple-chart" id="weeklyChart">
+                    <!-- Chart bars will be generated here -->
+                </div>
+            </div>
+
+            <div class="goals-summary">
+                <h3>Recent Goals</h3>
+                <div id="goalsList">
+                    <!-- Goals will be loaded here -->
+                </div>
+            </div>
+
+            <div class="support-section">
+                <h3 style="color: #ffd700; margin-bottom: 15px;">☕ Support Me</h3>
+                <p style="color: #e2e8f0; margin-bottom: 15px;">Help keep Memento Mori free and support future development</p>
+                <a href="https://ko-fi.com/amazingkeymaster" target="_blank" class="kofi-link">
+                    Support Me on Ko-fi
+                </a>
+            </div>
+        </div>
+
+        <div class="watermark">
+            <a href="https://github.com/amazingkeymaster" target="_blank">
+                Made with ❤️ by amazingkeymaster
+            </a>
+        </div>
+    </div>
+
+    <script src="utils.js"></script>
+    <script src="stats.js"></script>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Mode - Memento Mori</title>
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            background: #0f1b3c;
+            font-family: 'Crimson Text', serif;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .icon {
+            font-size: 72px;
+            margin-bottom: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+
+        .title {
+            font-family: 'UnifrakturCook', serif;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-shadow: 
+                2px 2px 4px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(255, 215, 0, 0.3);
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            font-size: 24px;
+            margin-bottom: 40px;
+            color: #b8860b;
+        }
+
+        .coming-soon {
+            font-size: 36px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            color: #ff6b6b;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .description {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            color: #e0e0e0;
+            max-width: 500px;
+        }
+
+        .features-preview {
+            text-align: left;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .features-preview h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #d4af37;
+            text-align: center;
+        }
+
+        .features-preview ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .features-preview li {
+            padding: 5px 0;
+            color: #e0e0e0;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .features-preview li::before {
+            content: "🎯";
+            position: absolute;
+            left: 0;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            color: #d4af37;
+            border: 2px solid #d4af37;
+            margin: 0 10px;
+        }
+
+        .btn:hover {
+            background: rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .support-section {
+            margin-top: 30px;
+        }
+
+        .kofi-link {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #ff5722;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .kofi-link:hover {
+            background: #e64a19;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
+        }
+
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .watermark a {
+            color: #888;
+            text-decoration: none;
+        }
+
+        .watermark a:hover {
+            color: #d4af37;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🧘‍♂️</div>
+        
+        <h1 class="title">Focus Mode</h1>
+        <p class="subtitle">Deep Work & Productivity</p>
+        
+        <div class="coming-soon">Coming Soon</div>
+        
+        <div class="description">
+            Focus Mode will help you enter a state of deep concentration by providing a distraction-free environment 
+            with productivity tools, ambient sounds, and mindfulness exercises.
+        </div>
+
+        <div class="features-preview">
+            <h3>Planned Features</h3>
+            <ul>
+                <li>Pomodoro Timer with customizable intervals</li>
+                <li>Ambient sounds and white noise</li>
+                <li>Breathing exercises and meditation guides</li>
+                <li>Focus session tracking and analytics</li>
+                <li>Goal-setting and progress monitoring</li>
+                <li>Minimal, distraction-free interface</li>
+                <li>Integration with blocking schedules</li>
+            </ul>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn" onclick="goBack()">
+                ⬅️ Go Back
+            </button>
+            <button class="btn" onclick="openExtension()">
+                🏠 Main Menu
+            </button>
+        </div>
+
+        <div class="support-section">
+            <a href="https://ko-fi.com/amazingkeymaster" target="_blank" class="kofi-link">
+                ☕ Help Build Focus Mode - Support Me
+            </a>
+        </div>
+    </div>
+
+    <div class="watermark">
+        <a href="https://github.com/amazingkeymaster" target="_blank">
+            Made with ❤️ by amazingkeymaster
+        </a>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+
+        function openExtension() {
+            // Close this tab and let user use the extension popup
+            window.close();
+        }
+    </script>
+</body>
+</html>

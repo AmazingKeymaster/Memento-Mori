@@ -1,0 +1,25 @@
+{
+  "name": "memento-mori",
+  "version": "1.0.2",
+  "description": "A productivity Chrome extension that reminds you of life's brevity while blocking distracting websites.",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AmazingKeymaster/memento-mori.git"
+  },
+  "keywords": [
+    "chrome-extension",
+    "productivity",
+    "focus",
+    "memento-mori"
+  ],
+  "author": "AmazingKeymaster",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AmazingKeymaster/memento-mori/issues"
+  },
+  "homepage": "https://github.com/AmazingKeymaster/memento-mori#readme"
+}
