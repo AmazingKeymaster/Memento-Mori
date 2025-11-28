@@ -35,7 +35,7 @@ class MementoMori {
         this.updateCandle();
         this.displayDailyQuote(); // Changed from displayRandomQuote to displayDailyQuote
         this.loadGoals();
-        
+
         // Listen for storage changes
         chrome.storage.onChanged.addListener((changes) => {
             this.handleStorageChange(changes);
@@ -52,28 +52,28 @@ class MementoMori {
 
     async loadUserData() {
         const result = await chrome.storage.local.get(['birthdate', 'userAge', 'userContinent', 'goals', 'dailyStats']);
-        
+
         // Calculate age from birthdate if available
         if (result.birthdate) {
             this.userAge = this.calculateAge(result.birthdate);
         } else {
             this.userAge = result.userAge || 0;
         }
-        
+
         this.userContinent = result.userContinent || 'North America';
         this.goals = result.goals || [];
-        
+
         // Get TODAY'S data from daily stats
         const today = new Date().toDateString();
         this.dailyStats = result.dailyStats || {};
-        
+
         // Screen time and saved time from today's stats (in seconds)
         const todaysStats = this.dailyStats[today] || { totalTime: 0, savedTime: 0 };
         this.totalScreenTime = Math.floor(todaysStats.totalTime / 60); // Convert to minutes
         this.savedTime = Math.floor(todaysStats.savedTime / 60); // Convert to minutes
-        
+
         this.birthdate = result.birthdate || '';
-        
+
         console.log(`📊 TODAY'S STATS: Screen Time: ${this.totalScreenTime}m, Saved Time: ${this.savedTime}m`);
     }
 
@@ -90,6 +90,11 @@ class MementoMori {
         document.getElementById('viewStatsBtn').addEventListener('click', () => {
             const statsUrl = chrome.runtime.getURL('stats.html');
             chrome.tabs.create({ url: statsUrl });
+        });
+
+        document.getElementById('focusModeBtn').addEventListener('click', () => {
+            const focusUrl = chrome.runtime.getURL('focus.html');
+            chrome.tabs.create({ url: focusUrl });
         });
 
         document.getElementById('addGoalBtn').addEventListener('click', () => {
@@ -127,14 +132,14 @@ class MementoMori {
 
     calculateDaysLeft() {
         if (this.userAge === 0) return 0;
-        
+
         const expectedLifespan = this.lifeExpectancy[this.userContinent] || 79;
-        
+
         // Handle case where age exceeds life expectancy
         if (this.userAge >= expectedLifespan) {
             return -1; // Special case for borrowed time
         }
-        
+
         const yearsLeft = Math.max(0, expectedLifespan - this.userAge);
         return Math.floor(yearsLeft * 365.25);
     }
@@ -143,7 +148,7 @@ class MementoMori {
         const candleBody = document.getElementById('candleBody');
         const waxBase = document.getElementById('waxBase');
         const container = document.querySelector('.container');
-        
+
         if (this.userAge === 0) {
             // Default full candle
             candleBody.style.height = '150px';
@@ -154,38 +159,38 @@ class MementoMori {
         }
 
         const expectedLifespan = this.lifeExpectancy[this.userContinent] || 79;
-        
+
         // Handle dramatic "borrowed time" case
         if (this.userAge >= expectedLifespan) {
             candleBody.style.height = '0px';
             waxBase.style.height = '30px';
             waxBase.style.width = '100px';
-            
+
             // Add dramatic effects
             container.classList.add('borrowed-time');
             document.getElementById('daysLeft').innerHTML = 'Borrowed time 🕰️... Every second is a gift.';
             document.getElementById('daysLeft').style.animation = 'glow 2s ease-in-out infinite alternate';
-            
+
             return;
         }
 
         // Normal candle calculation
         container.classList.remove('borrowed-time');
         const lifePercentage = Math.min(this.userAge / expectedLifespan, 1);
-        
+
         // Candle shortens as life progresses
         const maxHeight = 150;
         const minHeight = 20;
         const currentHeight = Math.max(minHeight, maxHeight - (lifePercentage * (maxHeight - minHeight)));
-        
+
         candleBody.style.height = `${currentHeight}px`;
-        
+
         // Wax accumulates as candle burns
         const maxWaxHeight = 20;
         const maxWaxWidth = 80;
         const waxHeight = 8 + (lifePercentage * (maxWaxHeight - 8));
         const waxWidth = 60 + (lifePercentage * (maxWaxWidth - 60));
-        
+
         waxBase.style.height = `${waxHeight}px`;
         waxBase.style.width = `${waxWidth}px`;
     }
@@ -203,7 +208,7 @@ class MementoMori {
                 const randomQuote = this.quotesWithAuthors[Math.floor(Math.random() * this.quotesWithAuthors.length)];
                 document.getElementById('dailyQuote').innerHTML = `"${randomQuote.text}"`;
                 document.getElementById('quoteAuthor').textContent = `— ${randomQuote.author}`;
-                
+
                 // Store for today
                 chrome.storage.local.set({
                     dailyQuoteDate: today,
@@ -241,14 +246,14 @@ class MementoMori {
             const goalItem = document.createElement('div');
             goalItem.className = 'goal-item';
             goalItem.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;';
-            
+
             // Calculate days until deadline
             let deadlineInfo = '';
             if (goal.deadline) {
                 const deadlineDate = new Date(goal.deadline);
                 const now = new Date();
                 const daysUntil = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24));
-                
+
                 if (daysUntil < 0) {
                     deadlineInfo = ' <span style="color: #ff6b6b; font-size: 12px;">(OVERDUE)</span>';
                 } else if (daysUntil === 0) {
@@ -261,7 +266,7 @@ class MementoMori {
                     deadlineInfo = ` <span style="color: #888; font-size: 12px;">(${daysUntil} days left)</span>`;
                 }
             }
-            
+
             goalItem.innerHTML = `
                 <div style="display: flex; align-items: center; flex: 1;">
                     <input type="checkbox" id="goal-${index}" ${goal.completed ? 'checked' : ''} style="margin-right: 8px;">
@@ -269,18 +274,18 @@ class MementoMori {
                 </div>
                 <button class="delete-goal-btn" data-index="${index}" style="background: #ff4444; color: white; border: none; border-radius: 3px; padding: 4px 8px; font-size: 12px; cursor: pointer; margin-left: 8px;">×</button>
             `;
-            
+
             const checkbox = goalItem.querySelector('input');
             checkbox.addEventListener('change', () => {
                 this.toggleGoal(index);
             });
-            
+
             const deleteBtn = goalItem.querySelector('.delete-goal-btn');
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.deleteGoal(index);
             });
-            
+
             goalsList.appendChild(goalItem);
         });
     }
@@ -289,14 +294,14 @@ class MementoMori {
         if (confirm('Are you sure you want to delete this goal?')) {
             this.goals.splice(index, 1);
             await chrome.storage.local.set({ goals: this.goals });
-            
+
             // Update deadline reminders
             try {
-                chrome.runtime.sendMessage({ action: 'updateGoalDeadlines' }, () => { if(chrome.runtime.lastError) {} });
+                chrome.runtime.sendMessage({ action: 'updateGoalDeadlines' }, () => { if (chrome.runtime.lastError) { } });
             } catch (error) {
                 // Ignore connection errors
             }
-            
+
             this.loadGoals();
         }
     }
@@ -305,7 +310,7 @@ class MementoMori {
         const form = document.getElementById('addGoalForm');
         const input = document.getElementById('goalInput');
         const addBtn = document.getElementById('addGoalBtn');
-        
+
         form.style.display = 'block';
         addBtn.style.display = 'none';
         input.focus();
@@ -317,10 +322,10 @@ class MementoMori {
         const deadlineInput = document.getElementById('deadlineInput');
         const hasDeadlineCheckbox = document.getElementById('hasDeadline');
         const addBtn = document.getElementById('addGoalBtn');
-        
+
         form.style.display = 'none';
         addBtn.style.display = 'block';
-        
+
         // Clear form
         input.value = '';
         deadlineInput.value = '';
@@ -332,9 +337,9 @@ class MementoMori {
         const goalInput = document.getElementById('goalInput');
         const deadlineInput = document.getElementById('deadlineInput');
         const hasDeadlineCheckbox = document.getElementById('hasDeadline');
-        
+
         const goalText = goalInput.value.trim();
-        
+
         if (!goalText) {
             goalInput.style.border = '2px solid #ff4444';
             setTimeout(() => {
@@ -363,7 +368,7 @@ class MementoMori {
         // Update deadline reminders if deadline was set
         if (deadline) {
             try {
-                chrome.runtime.sendMessage({ action: 'updateGoalDeadlines' }, () => { if(chrome.runtime.lastError) {} });
+                chrome.runtime.sendMessage({ action: 'updateGoalDeadlines' }, () => { if (chrome.runtime.lastError) { } });
             } catch (error) {
                 // Ignore connection errors
             }
@@ -378,7 +383,7 @@ class MementoMori {
         if (goalText && goalText.trim()) {
             const hasDeadline = confirm('Do you want to set a deadline for this goal?');
             let deadline = null;
-            
+
             if (hasDeadline) {
                 const deadlineInput = prompt('Enter deadline (YYYY-MM-DD format):');
                 if (deadlineInput) {
@@ -390,25 +395,25 @@ class MementoMori {
                     }
                 }
             }
-            
+
             this.goals.push({
                 text: goalText.trim(),
                 completed: false,
                 createdAt: new Date().toISOString(),
                 deadline: deadline
             });
-            
+
             await chrome.storage.local.set({ goals: this.goals });
-            
+
             // Update deadline reminders if deadline was set
             if (deadline) {
                 try {
-                    chrome.runtime.sendMessage({ action: 'updateGoalDeadlines' }, () => { if(chrome.runtime.lastError) {} });
+                    chrome.runtime.sendMessage({ action: 'updateGoalDeadlines' }, () => { if (chrome.runtime.lastError) { } });
                 } catch (error) {
                     // Ignore connection errors
                 }
             }
-            
+
             this.loadGoals();
         }
     }

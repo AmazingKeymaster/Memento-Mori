@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Focus Mode - Memento Mori</title>
-    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -25,213 +28,220 @@
         }
 
         .container {
-            max-width: 600px;
+            width: 100%;
+            max-width: 500px;
             padding: 40px;
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.4);
             border-radius: 20px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(212, 175, 55, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
         .icon {
-            font-size: 72px;
-            margin-bottom: 30px;
-            animation: pulse 2s ease-in-out infinite;
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: pulse 3s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
         }
 
         .title {
             font-family: 'UnifrakturCook', serif;
-            font-size: 48px;
+            font-size: 42px;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             color: #ffd700;
-            text-shadow: 
-                2px 2px 4px rgba(0, 0, 0, 0.8),
-                0 0 20px rgba(255, 215, 0, 0.3);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
             letter-spacing: 2px;
         }
 
-        .subtitle {
-            font-size: 24px;
+        .timer-display {
+            font-family: 'UnifrakturCook', serif;
+            font-size: 80px;
+            color: #fff;
+            margin: 30px 0;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
             margin-bottom: 40px;
-            color: #b8860b;
-        }
-
-        .coming-soon {
-            font-size: 36px;
-            font-weight: 600;
-            margin-bottom: 30px;
-            color: #ff6b6b;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .description {
-            font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 40px;
-            color: #e0e0e0;
-            max-width: 500px;
-        }
-
-        .features-preview {
-            text-align: left;
-            margin-bottom: 40px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
-        .features-preview h3 {
-            font-family: 'Cinzel', serif;
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: #d4af37;
-            text-align: center;
-        }
-
-        .features-preview ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .features-preview li {
-            padding: 5px 0;
-            color: #e0e0e0;
-            position: relative;
-            padding-left: 20px;
-        }
-
-        .features-preview li::before {
-            content: "🎯";
-            position: absolute;
-            left: 0;
         }
 
         .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.1);
-            color: #d4af37;
-            border: 2px solid #d4af37;
-            margin: 0 10px;
-        }
-
-        .btn:hover {
-            background: rgba(212, 175, 55, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .support-section {
-            margin-top: 30px;
-        }
-
-        .kofi-link {
-            display: inline-block;
             padding: 12px 25px;
-            background: #ff5722;
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
+            border: none;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: 600;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Crimson Text', serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .kofi-link:hover {
-            background: #e64a19;
+        .btn-primary {
+            background: #ffd700;
+            color: #0f1b3c;
+            border: 2px solid #ffd700;
+        }
+
+        .btn-primary:hover {
+            background: #ffed4a;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
         }
 
-        .watermark {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            font-size: 14px;
+        .btn-outline {
+            background: transparent;
+            color: #ffd700;
+            border: 2px solid #ffd700;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .task-section {
+            margin-bottom: 30px;
+            width: 100%;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-family: 'Crimson Text', serif;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ffd700;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .task-display {
+            display: none;
+            background: rgba(255, 215, 0, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffd700;
+            text-align: left;
+            position: relative;
+        }
+
+        .task-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #aaa;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .current-task {
+            font-size: 18px;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .clear-task {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
             color: #666;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
         }
 
-        .watermark a {
+        .clear-task:hover {
+            color: #ff6b6b;
+        }
+
+        .footer-nav {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-link {
             color: #888;
             text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: color 0.2s;
         }
 
-        .watermark a:hover {
-            color: #d4af37;
+        .nav-link:hover {
+            color: #ffd700;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="icon">🧘‍♂️</div>
-        
+
         <h1 class="title">Focus Mode</h1>
-        <p class="subtitle">Deep Work & Productivity</p>
-        
-        <div class="coming-soon">Coming Soon</div>
-        
-        <div class="description">
-            Focus Mode will help you enter a state of deep concentration by providing a distraction-free environment 
-            with productivity tools, ambient sounds, and mindfulness exercises.
+
+        <div class="task-section">
+            <div class="input-group">
+                <input type="text" id="taskInput" placeholder="What are you focusing on?">
+                <button id="setTaskBtn" class="btn btn-outline">Set</button>
+            </div>
+
+            <div id="taskDisplay" class="task-display">
+                <div class="task-label">Current Focus</div>
+                <div id="currentTaskText" class="current-task">Writing Code</div>
+                <button id="clearTaskBtn" class="clear-task" title="Clear task">✕</button>
+            </div>
         </div>
 
-        <div class="features-preview">
-            <h3>Planned Features</h3>
-            <ul>
-                <li>Pomodoro Timer with customizable intervals</li>
-                <li>Ambient sounds and white noise</li>
-                <li>Breathing exercises and meditation guides</li>
-                <li>Focus session tracking and analytics</li>
-                <li>Goal-setting and progress monitoring</li>
-                <li>Minimal, distraction-free interface</li>
-                <li>Integration with blocking schedules</li>
-            </ul>
+        <div id="timer" class="timer-display">25:00</div>
+
+        <div class="controls">
+            <button id="startBtn" class="btn btn-primary">Start Focus</button>
+            <button id="pauseBtn" class="btn btn-primary" style="display: none;">Pause</button>
+            <button id="resetBtn" class="btn btn-outline">Reset</button>
         </div>
 
-        <div class="action-buttons">
-            <button class="btn" onclick="goBack()">
-                ⬅️ Go Back
-            </button>
-            <button class="btn" onclick="openExtension()">
-                🏠 Main Menu
-            </button>
-        </div>
-
-        <div class="support-section">
-            <a href="https://ko-fi.com/amazingkeymaster" target="_blank" class="kofi-link">
-                ☕ Help Build Focus Mode - Support Me
-            </a>
+        <div class="footer-nav">
+            <a id="backBtn" class="nav-link">⬅️ Go Back</a>
+            <a id="menuBtn" class="nav-link">Close Window</a>
         </div>
     </div>
 
-    <div class="watermark">
-        <a href="https://github.com/amazingkeymaster" target="_blank">
-            Made with ❤️ by amazingkeymaster
-        </a>
-    </div>
-
-    <script>
-        function goBack() {
-            window.history.back();
-        }
-
-        function openExtension() {
-            // Close this tab and let user use the extension popup
-            window.close();
-        }
-    </script>
+    <script src="focus.js"></script>
 </body>
+
 </html>

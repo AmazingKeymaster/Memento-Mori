@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memento Mori Settings</title>
-    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -44,7 +47,7 @@
             font-weight: 700;
             margin-bottom: 10px;
             color: #ffd700;
-            text-shadow: 
+            text-shadow:
                 2px 2px 4px rgba(0, 0, 0, 0.8),
                 0 0 20px rgba(255, 215, 0, 0.3);
             letter-spacing: 2px;
@@ -446,6 +449,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -468,7 +472,7 @@
                 <h2 class="section-title">
                     👤 Personal Information
                 </h2>
-                
+
                 <div class="form-group">
                     <label class="form-label" for="birthdate">Your Birthdate:</label>
                     <input type="date" id="birthdate" class="form-input" required>
@@ -476,7 +480,8 @@
 
                 <div class="form-group">
                     <label class="form-label" for="userContinent">Your Continent:</label>
-                    <select id="userContinent" class="form-select">
+                    <select id="userContinent" class="form-select"
+                        style="background-color: #1e3a8a; color: white; font-weight: bold; border: 2px solid #ffd700;">
                         <option value="North America">North America</option>
                         <option value="Europe">Europe</option>
                         <option value="Asia">Asia</option>
@@ -494,13 +499,15 @@
                 <div class="form-group">
                     <label for="notificationTime">Notification Time:</label>
                     <input type="time" id="notificationTime" value="09:00">
-                    <small style="color: #888; font-size: 12px;">Set your preferred time for daily reminders (default: 9:00 AM)</small>
+                    <small style="color: #888; font-size: 12px;">Set your preferred time for daily reminders (default:
+                        9:00 AM)</small>
                 </div>
 
                 <div class="privacy-notice">
                     <div class="checkbox-group">
                         <input type="checkbox" id="privacyAccepted">
-                        <label for="privacyAccepted">I understand that my birthdate and location stay on my device and are only used to personalize the visuals and stats.</label>
+                        <label for="privacyAccepted">I understand that my birthdate and location stay on my device and
+                            are only used to personalize the visuals and stats.</label>
                     </div>
                 </div>
 
@@ -514,7 +521,7 @@
                 <h2 class="section-title">
                     🚫 Blocking Schedules
                 </h2>
-                
+
                 <!-- Create New Schedule Button -->
                 <div style="text-align: center; margin-bottom: 20px;">
                     <button class="btn btn-primary" id="showScheduleFormBtn">
@@ -525,7 +532,7 @@
                 <!-- New Schedule Form (Hidden by default) -->
                 <div class="schedule-form hidden" id="scheduleForm">
                     <h4>Create New Schedule</h4>
-                    
+
                     <div class="form-group">
                         <label class="form-label" for="scheduleName">Schedule Name:</label>
                         <input type="text" id="scheduleName" class="form-input" placeholder="e.g., Work Hours">
@@ -583,10 +590,13 @@
                                 <!-- Site inputs will be added dynamically -->
                             </div>
                             <div class="quick-add-section">
-                                <p style="margin: 15px 0 10px 0; font-weight: 600; color: #ffd700;">⚡ Quick Add Popular Sites:</p>
+                                <p style="margin: 15px 0 10px 0; font-weight: 600; color: #ffd700;">⚡ Quick Add Popular
+                                    Sites:</p>
                                 <div class="quick-add-buttons">
-                                    <button type="button" class="quick-add-btn" data-site="facebook.com">Facebook</button>
-                                    <button type="button" class="quick-add-btn" data-site="instagram.com">Instagram</button>
+                                    <button type="button" class="quick-add-btn"
+                                        data-site="facebook.com">Facebook</button>
+                                    <button type="button" class="quick-add-btn"
+                                        data-site="instagram.com">Instagram</button>
                                     <button type="button" class="quick-add-btn" data-site="twitter.com">Twitter</button>
                                     <button type="button" class="quick-add-btn" data-site="reddit.com">Reddit</button>
                                     <button type="button" class="quick-add-btn" data-site="youtube.com">YouTube</button>
@@ -626,7 +636,7 @@
                 <h2 class="section-title">
                     📺 YouTube Settings
                 </h2>
-                
+
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                     <div>
                         <h4 style="color: #ffd700; margin-bottom: 15px;">Content Hiding</h4>
@@ -695,10 +705,11 @@
                 <h2 class="section-title">
                     🔒 Strict Mode
                 </h2>
-                
+
                 <div class="checkbox-group">
                     <input type="checkbox" id="strictMode">
-                    <label for="strictMode">Enable Strict Mode (Requires PIN to disable schedules or delete extension)</label>
+                    <label for="strictMode">Enable Strict Mode (Requires PIN to disable schedules. Note: Extension
+                        deletion protection is limited by browser policies)</label>
                 </div>
 
                 <div class="form-group" id="pinGroup" style="display: none;">
@@ -727,4 +738,5 @@
     <script src="utils.js"></script>
     <script src="options.js"></script>
 </body>
+
 </html>

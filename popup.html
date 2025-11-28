@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Memento Mori</title>
     <link rel="stylesheet" href="popup.css">
-    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <div class="container">
         <header class="header">
@@ -54,16 +58,22 @@
                     <label for="goal1">Click 'Personalize' to set your first goal</label>
                 </div>
             </div>
-            <div class="add-goal-form" id="addGoalForm" style="display: none; margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                <input type="text" id="goalInput" placeholder="Enter your goal..." style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 8px; background: rgba(255,255,255,0.9); color: #333;">
+            <div class="add-goal-form" id="addGoalForm"
+                style="display: none; margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                <input type="text" id="goalInput" placeholder="Enter your goal..."
+                    style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 8px; background: rgba(255,255,255,0.9); color: #333;">
                 <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
                     <input type="checkbox" id="hasDeadline" style="margin-right: 5px;">
                     <label for="hasDeadline" style="font-size: 12px; color: #e2e8f0;">Add deadline?</label>
-                    <input type="date" id="deadlineInput" style="padding: 4px; border: 1px solid #ccc; border-radius: 4px; background: rgba(255,255,255,0.9); color: #333; font-size: 12px; display: none;">
+                    <input type="date" id="deadlineInput"
+                        style="padding: 4px; border: 1px solid #ccc; border-radius: 4px; background: rgba(255,255,255,0.9); color: #333; font-size: 12px; display: none;">
                 </div>
                 <div style="display: flex; gap: 8px;">
-                    <button id="saveGoalBtn" style="flex: 1; padding: 8px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Save Goal</button>
-                    <button id="cancelGoalBtn" style="flex: 1; padding: 8px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Cancel</button>
+                    <button id="saveGoalBtn"
+                        style="flex: 1; padding: 8px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Save
+                        Goal</button>
+                    <button id="cancelGoalBtn"
+                        style="flex: 1; padding: 8px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Cancel</button>
                 </div>
             </div>
             <button class="add-goal-btn" id="addGoalBtn">+ Add Goal</button>
@@ -76,6 +86,9 @@
             <button class="btn btn-secondary" id="viewStatsBtn">
                 📊 View Stats
             </button>
+            <button class="btn btn-secondary" id="focusModeBtn">
+                🧘‍♂️ Focus Mode
+            </button>
         </div>
 
         <div class="support-section">
@@ -86,7 +99,11 @@
 
         <div class="privacy-policy">
             <h4>Privacy Policy</h4>
-            <p><strong>Memento Mori</strong> stores your birthdate, continent, and settings locally on your device using Chrome's storage API. No data ever leaves your device - we don't send, sell, or share anything to servers. You're fully in control. Uninstalling the extension removes all stored data. We don't collect personal identifiers like your name, email, or IP address. Everything stays local. No ads, no tracking, no funny business. Questions? Hit us up on GitHub.</p>
+            <p><strong>Memento Mori</strong> stores your birthdate, continent, and settings locally on your device using
+                Chrome's storage API. No data ever leaves your device - we don't send, sell, or share anything to
+                servers. You're fully in control. Uninstalling the extension removes all stored data. We don't collect
+                personal identifiers like your name, email, or IP address. Everything stays local. No ads, no tracking,
+                no funny business. Questions? Hit us up on GitHub.</p>
         </div>
 
         <div class="watermark">
@@ -99,4 +116,5 @@
     <script src="utils.js"></script>
     <script src="popup.js"></script>
 </body>
+
 </html>

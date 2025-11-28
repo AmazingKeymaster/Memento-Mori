@@ -18,9 +18,10 @@ class StatsManager {
         await this.loadData();
         this.updateStats();
         this.createWeeklyChart();
+        this.createTopSitesChart();
         this.loadGoalsList();
         this.cleanupOldGoals(); // Clean up completed goals from previous days
-        
+
         // Refresh stats every minute for real-time updates
         setInterval(() => {
             this.refreshStats();
@@ -31,11 +32,12 @@ class StatsManager {
         await this.loadData();
         this.updateStats();
         this.createWeeklyChart();
+        this.createTopSitesChart();
     }
 
     async loadData() {
         const result = await chrome.storage.local.get([
-            'birthdate', 'userAge', 'userContinent', 'goals', 'savedTime', 
+            'birthdate', 'userAge', 'userContinent', 'goals', 'savedTime',
             'dailyStats', 'weeklyStats', 'blockedSites', 'dailyTimeSpent'
         ]);
 
@@ -48,13 +50,13 @@ class StatsManager {
 
         this.userContinent = result.userContinent || 'North America';
         this.goals = result.goals || [];
-        
+
         // Get saved time from daily stats (instead of wasted time)
         const today = new Date().toDateString();
         this.dailyStats = result.dailyStats || {};
         const todaysStats = this.dailyStats[today] || { savedTime: 0 };
         this.savedTime = Math.floor(todaysStats.savedTime / 60); // Convert seconds to minutes
-        
+
         this.weeklyStats = result.weeklyStats || {};
         this.blockedSites = result.blockedSites || [];
         this.birthdate = result.birthdate || '';
@@ -64,7 +66,7 @@ class StatsManager {
     async cleanupOldGoals() {
         const today = new Date().toDateString();
         let goalsChanged = false;
-        
+
         // Remove completed goals from previous days
         this.goals = this.goals.filter(goal => {
             if (goal.completed && goal.createdAt) {
@@ -95,7 +97,7 @@ class StatsManager {
             document.getElementById('daysRemaining').style.color = '#ff4444';
             document.getElementById('daysRemaining').style.animation = 'glow 2s ease-in-out infinite alternate';
         } else {
-            document.getElementById('daysRemaining').textContent = 
+            document.getElementById('daysRemaining').textContent =
                 daysLeft > 0 ? daysLeft.toLocaleString() : '∞';
         }
 
@@ -143,13 +145,13 @@ class StatsManager {
 
     calculateDaysLeft() {
         if (this.userAge === 0) return 0;
-        
+
         const expectedLifespan = this.lifeExpectancy[this.userContinent] || 79;
-        
+
         if (this.userAge >= expectedLifespan) {
             return -1; // Borrowed time
         }
-        
+
         const yearsLeft = Math.max(0, expectedLifespan - this.userAge);
         return Math.floor(yearsLeft * 365.25);
     }
@@ -157,13 +159,13 @@ class StatsManager {
     calculateProductivityScore() {
         const totalGoals = this.goals.length;
         const todayScreenTime = this.getTodayScreenTime();
-        
+
         // If no data at all, return 0 (not 100)
         if (totalGoals === 0 && this.savedTime === 0 && todayScreenTime === 0) return 0;
-        
+
         // Start with a base score of 50 (neutral)
         let timeScore = 50;
-        
+
         // Add points for saved time (blocking schedules being active)
         // savedTime is in minutes, convert to hours for calculation
         const savedHours = this.savedTime / 60;
@@ -171,7 +173,7 @@ class StatsManager {
             // Bonus: up to 30 points for saved time (1 point per hour, max 30)
             timeScore += Math.min(30, savedHours * 1);
         }
-        
+
         // Deduct points for excessive screen time (convert to hours)
         const screenTimeHours = todayScreenTime / 60; // todayScreenTime is in minutes
         if (screenTimeHours > 2) { // More than 2 hours
@@ -181,17 +183,17 @@ class StatsManager {
             // Bonus: if screen time is low (under 1 hour), add bonus points
             timeScore += Math.min(20, (1 - screenTimeHours) * 20);
         }
-        
+
         // Calculate goal score separately
         let goalScore = 0;
         if (totalGoals > 0) {
             const completedGoals = this.goals.filter(goal => goal.completed).length;
             goalScore = (completedGoals / totalGoals) * 50; // Max 50 points from goals
         }
-        
+
         // Combine: 60% from time management, 40% from goals
         const finalScore = (timeScore * 0.6) + (goalScore * 0.4);
-        
+
         return Math.max(0, Math.min(100, Math.round(finalScore)));
     }
 
@@ -203,29 +205,29 @@ class StatsManager {
     createWeeklyChart() {
         const chartContainer = document.getElementById('weeklyChart');
         chartContainer.innerHTML = '';
-        
+
         const weekData = this.generateWeeklyData();
         const maxValue = Math.max(...weekData.map(d => d.value)) || 1;
-        
+
         weekData.forEach(day => {
             const barContainer = document.createElement('div');
             barContainer.style.display = 'flex';
             barContainer.style.flexDirection = 'column';
             barContainer.style.alignItems = 'center';
-            
+
             const bar = document.createElement('div');
             bar.className = 'chart-bar';
             const height = (day.value / maxValue) * 200; // Max height 200px
             bar.style.height = `${height}px`;
-            
+
             const value = document.createElement('div');
             value.className = 'chart-value';
             value.textContent = `${day.value}m`; // Show minutes
-            
+
             const label = document.createElement('div');
             label.className = 'chart-label';
             label.textContent = day.day;
-            
+
             bar.appendChild(value);
             barContainer.appendChild(bar);
             barContainer.appendChild(label);
@@ -245,23 +247,23 @@ class StatsManager {
     generateWeeklyData() {
         const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         const weekData = [];
-        
+
         // Get REAL time data from dailyStats and dailyTimeSpent
         const today = new Date();
-        
+
         for (let i = 6; i >= 0; i--) {
             const date = new Date(today);
             date.setDate(date.getDate() - i);
             const dateString = date.toDateString();
-            
+
             // Calculate REAL screen time from multiple sources
             let timeSpent = 0;
-            
+
             // Primary source: dailyStats with site-specific times (stored in SECONDS, convert to minutes)
             if (this.dailyStats[dateString] && this.dailyStats[dateString].totalTime) {
                 timeSpent += Math.floor(this.dailyStats[dateString].totalTime / 60); // Convert seconds to minutes
             }
-            
+
             // Secondary source: dailyTimeSpent (already in minutes)
             if (this.dailyTimeSpent[dateString]) {
                 if (typeof this.dailyTimeSpent[dateString] === 'number') {
@@ -272,7 +274,7 @@ class StatsManager {
                     });
                 }
             }
-            
+
             // Ensure we have realistic data
             if (timeSpent === 0 && i > 0) {
                 // For past days with no data, we might have some blocked attempts
@@ -280,15 +282,94 @@ class StatsManager {
                     timeSpent = this.dailyStats[dateString].blocked; // Minimal time from blocked attempts
                 }
             }
-            
+
             weekData.push({
                 day: days[date.getDay() === 0 ? 6 : date.getDay() - 1], // Adjust Sunday
                 value: Math.max(0, timeSpent), // Ensure non-negative
                 date: dateString
             });
         }
-        
+
         return weekData;
+    }
+
+    createTopSitesChart() {
+        const container = document.getElementById('topSitesChart');
+        container.innerHTML = '';
+
+        // Aggregate data from all available history
+        const siteTimes = {};
+
+        // Iterate through all daily stats
+        for (const [date, stats] of Object.entries(this.dailyStats)) {
+            if (stats.sites) {
+                for (const [site, seconds] of Object.entries(stats.sites)) {
+                    if (!siteTimes[site]) siteTimes[site] = 0;
+                    siteTimes[site] += seconds;
+                }
+            }
+        }
+
+        // Also check legacy dailyTimeSpent if needed, but dailyStats is primary for real tracking
+
+        // Convert to array and sort
+        const sortedSites = Object.entries(siteTimes)
+            .map(([site, seconds]) => ({ site, minutes: Math.floor(seconds / 60) }))
+            .sort((a, b) => b.minutes - a.minutes)
+            .slice(0, 5); // Top 5
+
+        if (sortedSites.length === 0) {
+            container.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 20px;">No browsing data yet</div>';
+            return;
+        }
+
+        const maxMinutes = sortedSites[0].minutes || 1;
+
+        sortedSites.forEach(item => {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.marginBottom = '15px';
+
+            const label = document.createElement('div');
+            label.style.width = '120px';
+            label.style.overflow = 'hidden';
+            label.style.textOverflow = 'ellipsis';
+            label.style.whiteSpace = 'nowrap';
+            label.style.marginRight = '10px';
+            label.style.color = '#e2e8f0';
+            label.textContent = item.site.replace(/^www\./, '');
+            label.title = item.site;
+
+            const barContainer = document.createElement('div');
+            barContainer.style.flex = '1';
+            barContainer.style.background = 'rgba(255, 255, 255, 0.1)';
+            barContainer.style.borderRadius = '4px';
+            barContainer.style.height = '20px';
+            barContainer.style.overflow = 'hidden';
+
+            const bar = document.createElement('div');
+            const width = Math.max(5, (item.minutes / maxMinutes) * 100);
+            bar.style.width = `${width}%`;
+            bar.style.height = '100%';
+            bar.style.background = 'linear-gradient(90deg, #ffd700, #ff6b6b)';
+            bar.style.borderRadius = '4px';
+
+            const value = document.createElement('div');
+            value.style.width = '60px';
+            value.style.textAlign = 'right';
+            value.style.marginLeft = '10px';
+            value.style.color = '#ffd700';
+            value.style.fontWeight = 'bold';
+            value.textContent = this.formatTime(item.minutes);
+
+            barContainer.appendChild(bar);
+            row.appendChild(label);
+            row.appendChild(barContainer);
+            row.appendChild(value);
+
+            container.appendChild(row);
+        });
     }
 
     loadGoalsList() {

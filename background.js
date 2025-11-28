@@ -7,12 +7,12 @@ class BackgroundService {
         this.tabStartTimes = new Map();
         this.sessionStartTime = Date.now();
         this.keepAlivePort = null;
-        
+
         // REAL TRACKING STATE
         this.isWindowFocused = true;
         this.isUserIdle = false;
         this.isReallyTracking = false;
-        
+
         // SMART IDLE DETECTION STATE
         this.smartIdleState = {
             isIdle: false,
@@ -24,11 +24,11 @@ class BackgroundService {
             tabIsInFocus: true,
             timeSinceLastActivity: 0
         };
-        
+
         // SAVED TIME TRACKING
         this.lastSavedTimeUpdate = Date.now();
         this.currentlyActiveSchedules = [];
-        
+
         this.init();
     }
 
@@ -36,16 +36,15 @@ class BackgroundService {
         // Import utils if available (for service worker, we'll use inline version)
         // Logger and Helpers are defined in utils.js and loaded via importScripts
         Logger.info('Memento Mori Background Service Starting...');
-        
-        // Keep service worker alive
-        this.setupKeepAlive();
-        
+
+
+
         // Initialize extension
         chrome.runtime.onInstalled.addListener(async (details) => {
             Logger.info('Extension installed/updated');
             await this.setupInitialData();
             this.setupAlarms();
-            
+
             // Show onboarding on first install
             if (details.reason === 'install') {
                 const result = await chrome.storage.local.get(['onboardingCompleted']);
@@ -68,7 +67,7 @@ class BackgroundService {
         chrome.tabs.onActivated.addListener(async (activeInfo) => {
             try {
                 Logger.debug('Tab activated:', activeInfo.tabId);
-                
+
                 // Stop tracking previous tab
                 await this.stopRealTracking();
 
@@ -111,7 +110,7 @@ class BackgroundService {
         chrome.idle.onStateChanged.addListener(async (state) => {
             Logger.debug('Idle state changed:', state);
             this.isUserIdle = (state !== 'active');
-            
+
             if (this.isUserIdle) {
                 Logger.info('😴 User idle - STOP TRACKING');
                 await this.stopRealTracking();
@@ -169,6 +168,8 @@ class BackgroundService {
             periodInMinutes: 0.33 // 20 seconds
         });
 
+
+
         // Handle messages from content scripts and popup
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             this.handleMessage(request, sender, sendResponse);
@@ -215,18 +216,6 @@ class BackgroundService {
         Logger.info('✅ Memento Mori Background Service Ready!');
     }
 
-    setupKeepAlive() {
-        // Keep service worker alive using a persistent connection
-        try {
-            this.keepAlivePort = chrome.runtime.connect({ name: 'keepAlive' });
-            this.keepAlivePort.onDisconnect.addListener(() => {
-                Logger.warn('🔌 Keep alive port disconnected, reconnecting...');
-                setTimeout(() => this.setupKeepAlive(), 1000);
-            });
-        } catch (error) {
-            Logger.error('Keep alive setup error:', error);
-        }
-    }
 
     keepAlive() {
         // Periodic keep alive function
@@ -244,7 +233,7 @@ class BackgroundService {
     async startRealTracking() {
         // Only track if: active tab + window focused + user not idle
         const shouldTrack = this.activeTabId && this.isWindowFocused && !this.isUserIdle;
-        
+
         if (shouldTrack && !this.isReallyTracking) {
             try {
                 const tab = await chrome.tabs.get(this.activeTabId);
@@ -263,12 +252,18 @@ class BackgroundService {
     async stopRealTracking() {
         if (this.isReallyTracking && this.activeTabId && this.tabStartTimes.has(this.activeTabId)) {
             try {
-                const tab = await chrome.tabs.get(this.activeTabId);
-                if (tab.url) {
+                let tab = null;
+                try {
+                    tab = await chrome.tabs.get(this.activeTabId);
+                } catch (e) {
+                    // Tab might be closed already, which is fine
+                }
+
+                if (tab && tab.url) {
                     const startTime = this.tabStartTimes.get(this.activeTabId);
                     const endTime = Date.now();
                     const timeSpentSeconds = Math.floor((endTime - startTime) / 1000);
-                    
+
                     if (timeSpentSeconds >= 1) {
                         const hostname = new URL(tab.url).hostname.toLowerCase();
                         await this.processRealScreenTime(hostname, timeSpentSeconds);
@@ -279,7 +274,7 @@ class BackgroundService {
                 Logger.error('Error stopping real tracking:', error);
             }
         }
-        
+
         this.isReallyTracking = false;
         this.tabStartTimes.clear();
     }
@@ -287,15 +282,15 @@ class BackgroundService {
     async processRealScreenTime(hostname, seconds) {
         const result = await chrome.storage.local.get(['blockingSchedules', 'dailyStats']);
         const today = new Date().toDateString();
-        
+
         // ALWAYS RECORD SCREEN TIME - track ALL sites for total screen time
         await this.recordScreenTime(hostname, seconds);
         Logger.info(`📊 SCREEN TIME: ${hostname} +${seconds}s (ALWAYS TRACKED)`);
-        
+
         // FIXED WASTED TIME LOGIC: If this site is in ANY blocking schedule, it's considered "distracting"
         // Wasted time = time spent on sites you want to avoid (regardless of current blocking status)
         const isDistractingSite = this.isSiteTracked(hostname, result.blockingSchedules || []);
-        
+
         if (isDistractingSite) {
             // This is WASTED TIME - time spent on a site you've marked as distracting
             await this.recordWastedTime(hostname, seconds);
@@ -311,7 +306,7 @@ class BackgroundService {
                     const hostnameLower = hostname.toLowerCase();
                     const cleanHostname = hostnameLower.replace(/^www\./, '');
                     const cleanSite = siteLower.replace(/^www\./, '');
-                    
+
                     if (cleanHostname === cleanSite || cleanHostname.includes(cleanSite) || cleanSite.includes(cleanHostname)) {
                         return true;
                     }
@@ -325,30 +320,34 @@ class BackgroundService {
         const today = new Date().toDateString();
         const result = await chrome.storage.local.get(['dailyStats']);
         const dailyStats = result.dailyStats || {};
-        
+
         if (!dailyStats[today]) {
             dailyStats[today] = { totalTime: 0, sites: {}, savedTime: 0, untracked: {} };
         }
         if (!dailyStats[today].sites[hostname]) {
             dailyStats[today].sites[hostname] = 0;
         }
-        
+
         dailyStats[today].sites[hostname] += seconds;
         dailyStats[today].totalTime += seconds;
-        
+
         await chrome.storage.local.set({ dailyStats: dailyStats });
-        
+
         // Only notify popup every 10 seconds to reduce message spam
         const now = Date.now();
         if (!this.lastPopupUpdate || (now - this.lastPopupUpdate) > 10000) {
             this.lastPopupUpdate = now;
-            
+
             // Notify popup of updated screen time
             try {
                 chrome.runtime.sendMessage({
                     action: 'updateScreenTime',
                     totalTime: dailyStats[today].totalTime,
                     todaysData: dailyStats[today]
+                }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        // Popup not open, ignore error
+                    }
                 });
             } catch (error) {
                 // Popup may not be open
@@ -360,20 +359,24 @@ class BackgroundService {
         const today = new Date().toDateString();
         const result = await chrome.storage.local.get(['dailyStats']);
         const dailyStats = result.dailyStats || {};
-        
+
         if (!dailyStats[today]) {
             dailyStats[today] = { totalTime: 0, sites: {}, savedTime: 0, untracked: {} };
         }
-        
+
         dailyStats[today].savedTime = (dailyStats[today].savedTime || 0) + seconds;
-        
+
         await chrome.storage.local.set({ dailyStats: dailyStats });
-        
+
         // Notify popup
         try {
             chrome.runtime.sendMessage({
                 action: 'updateWastedTime',
                 time: dailyStats[today].wastedTime
+            }, (response) => {
+                if (chrome.runtime.lastError) {
+                    // Popup not open, ignore error
+                }
             });
         } catch (error) {
             // Popup may not be open
@@ -384,19 +387,19 @@ class BackgroundService {
         const today = new Date().toDateString();
         const result = await chrome.storage.local.get(['dailyStats']);
         const dailyStats = result.dailyStats || {};
-        
+
         if (!dailyStats[today]) {
             dailyStats[today] = { totalTime: 0, sites: {}, wastedTime: 0, untracked: {} };
         }
         if (!dailyStats[today].untracked[hostname]) {
             dailyStats[today].untracked[hostname] = 0;
         }
-        
+
         dailyStats[today].untracked[hostname] += seconds;
-        
+
         // Check if we should recommend tracking this site (3+ hours this week)
         await this.checkRecommendations(hostname, dailyStats);
-        
+
         await chrome.storage.local.set({ dailyStats: dailyStats });
     }
 
@@ -404,7 +407,7 @@ class BackgroundService {
         let weeklyTotal = 0;
         const oneWeekAgo = new Date();
         oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        
+
         // Sum up time on this untracked site over the past week
         for (const [dateStr, stats] of Object.entries(dailyStats)) {
             const date = new Date(dateStr);
@@ -412,12 +415,12 @@ class BackgroundService {
                 weeklyTotal += stats.untracked[hostname];
             }
         }
-        
+
         // If 3+ hours (10800 seconds) this week, suggest tracking
         if (weeklyTotal >= 10800) {
             const hours = Math.floor(weeklyTotal / 3600);
             Logger.info(`💡 RECOMMENDATION: Add ${hostname} to tracking (${hours}h this week)`);
-            
+
             // Could show notification here
             try {
                 const iconUrl = chrome.runtime.getURL('assets/icon-48.png');
@@ -469,7 +472,7 @@ class BackgroundService {
         const result = await chrome.storage.local.get(['goals', 'wastedTime']);
         const goals = result.goals || [];
         const today = new Date().toDateString();
-        
+
         // Remove ALL goals from previous days (both completed and incomplete)
         const filteredGoals = goals.filter(goal => {
             if (goal.createdAt) {
@@ -483,13 +486,13 @@ class BackgroundService {
             await chrome.storage.local.set({ goals: filteredGoals });
             Logger.info(`🧹 Cleaned up ${goals.length - filteredGoals.length} old goals`);
         }
-        
+
         // CLEAN UP OLD CUMULATIVE WASTED TIME - Reset to 0 daily
         if (result.wastedTime && result.wastedTime > 0) {
             await chrome.storage.local.set({ wastedTime: 0 });
             Logger.info(`🧹 Reset cumulative wasted time to 0 - now using daily tracking only`);
         }
-        
+
         // CLEAN UP OLD NOTIFICATION TRACKING - Keep only last 2 days
         const notifResult = await chrome.storage.local.get(['sentNotificationsToday']);
         if (notifResult.sentNotificationsToday) {
@@ -497,12 +500,12 @@ class BackgroundService {
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayStr = yesterday.toDateString();
-            
+
             // Keep only today and yesterday
             const cleanedNotifications = {};
             if (sentNotifications[today]) cleanedNotifications[today] = sentNotifications[today];
             if (sentNotifications[yesterdayStr]) cleanedNotifications[yesterdayStr] = sentNotifications[yesterdayStr];
-            
+
             await chrome.storage.local.set({ sentNotificationsToday: cleanedNotifications });
             Logger.info(`🧹 Cleaned up old notification tracking data`);
         }
@@ -548,10 +551,10 @@ class BackgroundService {
 
     async setupAlarms() {
         const result = await chrome.storage.local.get(['dailyNotifications', 'notificationTime', 'goals']);
-        
+
         // Clear existing alarms
         chrome.alarms.clear('dailyReminder');
-        
+
         if (result.dailyNotifications) {
             // Set daily reminder alarm with custom time
             const notificationTime = result.notificationTime || '09:00';
@@ -582,12 +585,12 @@ class BackgroundService {
             if (goal.deadline && !goal.completed) {
                 const deadlineDate = new Date(goal.deadline);
                 const now = new Date();
-                
+
                 if (deadlineDate > now) {
                     // Set reminder for 9 AM on deadline day
                     const reminderTime = new Date(deadlineDate);
                     reminderTime.setHours(9, 0, 0, 0);
-                    
+
                     if (reminderTime > now) {
                         chrome.alarms.create(`deadlineReminder_${index}`, {
                             when: reminderTime.getTime()
@@ -603,18 +606,18 @@ class BackgroundService {
         const [hours, minutes] = timeString.split(':').map(Number);
         const now = new Date();
         const tomorrow = new Date(now);
-        
+
         // Set for today first
         const today = new Date(now);
         today.setHours(hours, minutes, 0, 0);
-        
+
         // If time has passed for today, set for tomorrow
         if (today <= now) {
             tomorrow.setDate(tomorrow.getDate() + 1);
             tomorrow.setHours(hours, minutes, 0, 0);
             return tomorrow.getTime();
         }
-        
+
         return today.getTime();
     }
 
@@ -641,7 +644,7 @@ class BackgroundService {
 
     async sendDailyNotification() {
         const result = await chrome.storage.local.get(['dailyNotifications', 'userAge', 'userContinent', 'birthdate', 'goals']);
-        
+
         if (!result.dailyNotifications) return;
 
         // Calculate age and days left for mortality reminder
@@ -651,7 +654,7 @@ class BackgroundService {
         }
 
         const daysLeft = Helpers.calculateDaysLeft(age, result.userContinent);
-        
+
         let baseMessage;
         if (daysLeft < 0) {
             baseMessage = "You're living on borrowed time 🕰️... Every second is a gift!";
@@ -661,23 +664,23 @@ class BackgroundService {
 
         // Check for upcoming deadlines
         const goals = result.goals || [];
-        
+
         // First, find urgent deadlines within 7 days
         const urgentDeadlines = goals.filter(goal => {
             if (!goal.deadline || goal.completed) return false;
-            
+
             const deadlineDate = new Date(goal.deadline);
             const now = new Date();
             const daysUntilDeadline = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24));
-            
+
             return daysUntilDeadline <= 7 && daysUntilDeadline >= 0; // Show if within 7 days
         });
 
         let message = baseMessage;
-        
+
         // Add deadline info if exists - MAKE IT PROMINENT
         let deadlineToShow = null;
-        
+
         if (urgentDeadlines.length > 0) {
             // Show most urgent deadline within 7 days
             deadlineToShow = urgentDeadlines[0];
@@ -696,17 +699,17 @@ class BackgroundService {
                     const dateB = new Date(b.deadline);
                     return dateA - dateB; // Sort by closest first
                 });
-            
+
             if (upcomingDeadlines.length > 0) {
                 deadlineToShow = upcomingDeadlines[0]; // Most urgent deadline within 30 days
             }
         }
-        
+
         if (deadlineToShow) {
             const deadlineDate = new Date(deadlineToShow.deadline);
             const now = new Date();
             const daysUntilDeadline = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24));
-            
+
             if (daysUntilDeadline === 0) {
                 message = `🚨 DEADLINE TODAY: "${deadlineToShow.text}" & ` + baseMessage;
             } else if (daysUntilDeadline === 1) {
@@ -719,7 +722,7 @@ class BackgroundService {
         // Create notification with required properties (NO MORE TEST NOTIFICATIONS)
         try {
             Logger.debug('Attempting to create daily notification...');
-            
+
             const iconUrl = chrome.runtime.getURL('assets/icon-48.png');
             const notificationOptions = {
                 type: 'basic',
@@ -727,9 +730,9 @@ class BackgroundService {
                 title: 'Memento Mori',
                 message: message
             };
-            
+
             Logger.debug('Notification options:', notificationOptions);
-            
+
             chrome.notifications.create('dailyReminder', notificationOptions, (notificationId) => {
                 if (chrome.runtime.lastError) {
                     Logger.error('Daily notification failed:', chrome.runtime.lastError.message);
@@ -737,7 +740,7 @@ class BackgroundService {
                     Logger.info('Daily notification created with ID:', notificationId);
                 }
             });
-            
+
         } catch (error) {
             Logger.error('Failed to create notification (caught exception):', error);
             Logger.error('Error stack:', error.stack);
@@ -748,12 +751,12 @@ class BackgroundService {
         const result = await chrome.storage.local.get(['goals']);
         const goals = result.goals || [];
         const goal = goals[parseInt(goalIndex)];
-        
+
         if (goal && goal.deadline && !goal.completed) {
             const deadlineDate = new Date(goal.deadline);
             const now = new Date();
             const daysLeft = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24));
-            
+
             let message;
             if (daysLeft === 0) {
                 message = `⚠️ DEADLINE TODAY: "${goal.text}"`;
@@ -762,7 +765,7 @@ class BackgroundService {
             } else {
                 message = `⚠️ You have ${daysLeft} days left till your deadline: "${goal.text}"`;
             }
-            
+
             const iconUrl = chrome.runtime.getURL('assets/icon-48.png');
             chrome.notifications.create(`deadlineAlert_${goalIndex}`, {
                 type: 'basic',
@@ -793,19 +796,19 @@ class BackgroundService {
                 Logger.warn('Invalid URL:', url);
                 return;
             }
-            
+
             const currentTime = new Date();
-            
+
             Logger.debug('CHECKING SITE:', hostname, 'at', currentTime.toLocaleTimeString());
             Logger.debug('Active schedules:', result.blockingSchedules?.length || 0);
-            
+
             // IMPROVED BLOCKING CHECK
             if (this.shouldBlockSite(hostname, currentTime, result.blockingSchedules || [])) {
                 Logger.info('BLOCKING SITE:', hostname);
-                
+
                 // FORCE REDIRECT to blocked page
                 const blockedUrl = chrome.runtime.getURL('blocked.html') + '?site=' + encodeURIComponent(hostname) + '&blocked_at=' + Date.now();
-                
+
                 try {
                     await chrome.tabs.update(tabId, { url: blockedUrl });
                     Logger.info('SUCCESSFULLY BLOCKED and redirected to:', blockedUrl);
@@ -832,37 +835,37 @@ class BackgroundService {
             Logger.debug('No blocking schedules found');
             return false;
         }
-        
+
         const activeSchedules = blockingSchedules.filter(schedule => schedule.active);
-            Logger.debug('Active schedules:', activeSchedules.length);
-        
+        Logger.debug('Active schedules:', activeSchedules.length);
+
         for (const schedule of activeSchedules) {
             Logger.debug('Checking schedule:', schedule.name, 'for time:', currentTime.toLocaleTimeString());
-            
+
             // Check if current time is in schedule
             if (!this.isBlockingTimeActive(currentTime, schedule)) {
                 Logger.debug('Time not in schedule range');
                 continue;
             }
-            
+
             // IMPROVED SITE MATCHING LOGIC - More precise to prevent false positives
             if (schedule.blockedSites && schedule.blockedSites.length > 0) {
                 for (const site of schedule.blockedSites) {
                     const siteLower = site.toLowerCase().trim();
                     const hostnameLower = hostname.toLowerCase();
-                    
+
                     // Remove www. prefix for better matching
                     const cleanHostname = hostnameLower.replace(/^www\./, '');
                     const cleanSite = siteLower.replace(/^www\./, '');
-                    
+
                     // More precise matching strategies to prevent false positives
                     // Removed includes() checks that could match incorrectly (e.g., "reddit.com" matching "preddit.com")
-                    const isMatch = 
+                    const isMatch =
                         cleanHostname === cleanSite ||                    // Exact match (e.g., "reddit.com" === "reddit.com")
                         cleanHostname.endsWith('.' + cleanSite) ||       // Subdomain match (e.g., "www.reddit.com" or "m.reddit.com" matches "reddit.com")
                         cleanSite.endsWith('.' + cleanHostname) ||       // Parent domain match (rare case)
                         cleanHostname.split('.').slice(-2).join('.') === cleanSite.split('.').slice(-2).join('.'); // Same base domain (e.g., "m.facebook.com" matches "facebook.com")
-                    
+
                     if (isMatch) {
                         Logger.info('BLOCKING MATCH FOUND!', { hostname, cleanHostname, cleanSite });
                         return true;
@@ -870,8 +873,8 @@ class BackgroundService {
                 }
             }
         }
-        
-            Logger.debug('Site not blocked');
+
+        Logger.debug('Site not blocked');
         return false;
     }
 
@@ -886,13 +889,13 @@ class BackgroundService {
             Logger.debug('Current day', currentDay, 'not in schedule days:', schedule.days);
             return false;
         }
-        
+
         // Check if current time is in schedule
         const startTime = this.parseTime(schedule.startTime);
         const endTime = this.parseTime(schedule.endTime);
-        
+
         Logger.debug('Time check:', currentTimeMinutes, 'vs', startTime, '-', endTime);
-        
+
         let isInTimeRange = false;
         if (startTime <= endTime) {
             isInTimeRange = currentTimeMinutes >= startTime && currentTimeMinutes <= endTime;
@@ -900,7 +903,7 @@ class BackgroundService {
             // Handle overnight schedules
             isInTimeRange = currentTimeMinutes >= startTime || currentTimeMinutes <= endTime;
         }
-        
+
         Logger.debug('Is in time range:', isInTimeRange);
         return isInTimeRange;
     }
@@ -912,22 +915,22 @@ class BackgroundService {
 
     async trackWastedTime() {
         const result = await chrome.storage.local.get(['dailyStats']);
-        
+
         // FIXED WASTED TIME - Only count time since this specific visit started
         const currentTime = Date.now();
         let timeWastedThisVisit = 5; // Default 5 seconds if we can't calculate exact time
-        
+
         // Only calculate if we have a recent start time (max 10 minutes ago to avoid huge numbers)
         if (this.activeTabId && this.tabStartTimes.has(this.activeTabId)) {
             const startTime = this.tabStartTimes.get(this.activeTabId);
             const timeSinceStart = Math.floor((currentTime - startTime) / 1000);
-            
+
             // Only use calculated time if it's reasonable (under 10 minutes)
             if (timeSinceStart > 0 && timeSinceStart <= 600) {
                 timeWastedThisVisit = timeSinceStart;
             }
         }
-        
+
         // Update DAILY stats only (no more cumulative bullshit)
         const today = new Date().toDateString();
         const dailyStats = result.dailyStats || {};
@@ -936,20 +939,20 @@ class BackgroundService {
         }
         dailyStats[today].blocked += 1; // Block attempt count
         dailyStats[today].savedTime = (dailyStats[today].savedTime || 0) + timeWastedThisVisit;
-        
-        await chrome.storage.local.set({ 
+
+        await chrome.storage.local.set({
             dailyStats: dailyStats
         });
-        
+
         const totalWastedToday = dailyStats[today].wastedTime;
-        console.log(`💸 WASTED TIME: +${timeWastedThisVisit}s this visit, ${Math.floor(totalWastedToday/60)}m today`);
-        
+        console.log(`💸 WASTED TIME: +${timeWastedThisVisit}s this visit, ${Math.floor(totalWastedToday / 60)}m today`);
+
         // Notify popup with TODAY'S wasted time only
         try {
             chrome.runtime.sendMessage({
                 action: 'updateWastedTime',
                 time: totalWastedToday // Send today's total, not cumulative
-            }, () => {
+            }, (response) => {
                 if (chrome.runtime.lastError) {
                     // Popup may not be open, this is normal
                 }
@@ -968,7 +971,7 @@ class BackgroundService {
                     await chrome.storage.local.get(['blockingSchedules']);
                     sendResponse({ success: true, message: 'Service worker activated' });
                     break;
-                    
+
                 case 'updateIdleState':
                     // Update smart idle state from content script
                     this.smartIdleState = {
@@ -978,29 +981,29 @@ class BackgroundService {
                     console.log('🧠 Smart idle state updated:', this.smartIdleState.isIdle ? 'IDLE' : 'ACTIVE');
                     sendResponse({ success: true });
                     break;
-                    
+
                 case 'setupDailyReminder':
                     await this.setupAlarms();
                     sendResponse({ success: true });
                     break;
-                    
+
                 case 'updateBlockingRules':
                     console.log('🔄 FORCE UPDATING BLOCKING RULES...');
                     await this.updateBlockingRules();
                     sendResponse({ success: true, message: 'Blocking rules updated' });
                     break;
-                    
+
                 case 'resetWastedTime':
                     // Now resets saved time instead
                     await this.resetSavedTime();
                     sendResponse({ success: true });
                     break;
-                    
+
                 case 'updateNotificationTime':
                     await this.setupAlarms(); // Refresh alarms with new time
                     sendResponse({ success: true });
                     break;
-                    
+
                 case 'updateGoalDeadlines':
                     const result = await chrome.storage.local.get(['goals']);
                     if (result.goals) {
@@ -1008,7 +1011,7 @@ class BackgroundService {
                     }
                     sendResponse({ success: true });
                     break;
-                    
+
                 default:
                     sendResponse({ error: 'Unknown action' });
             }
@@ -1038,16 +1041,16 @@ class BackgroundService {
         try {
             // Get active tab in focused window
             const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-            
+
             if (activeTab && activeTab.url && !activeTab.url.startsWith("chrome-extension://") && !activeTab.url.startsWith("chrome://") && !activeTab.url.startsWith("about:")) {
                 const hostname = new URL(activeTab.url).hostname.toLowerCase();
-                
+
                 // Update our tracking
                 this.activeTabId = activeTab.id;
-                
+
                 // Add 1 second to screen time - ALWAYS TRACK
                 await this.recordScreenTime(hostname, 1);
-                
+
                 console.log(`📊 Screen time +1s: ${hostname}`);
             }
         } catch (error) {
@@ -1061,20 +1064,20 @@ class BackgroundService {
             const result = await chrome.storage.local.get(['blockingSchedules']);
             const schedules = result.blockingSchedules || [];
             const currentTime = new Date();
-            
+
             // Find active schedules
             const activeSchedules = schedules.filter(schedule => {
                 return schedule.active && this.isBlockingTimeActive(currentTime, schedule);
             });
-            
+
             this.currentlyActiveSchedules = activeSchedules;
-            
+
             // If any schedule is active, add 1 second to saved time
             if (activeSchedules.length > 0) {
                 await this.recordSavedTime(1);
                 console.log(`💾 Saved time +1s (${activeSchedules.length} active schedules)`);
             }
-            
+
         } catch (error) {
             console.log('Error updating saved time:', error);
         }
@@ -1084,25 +1087,29 @@ class BackgroundService {
         const today = new Date().toDateString();
         const result = await chrome.storage.local.get(['dailyStats']);
         const dailyStats = result.dailyStats || {};
-        
+
         if (!dailyStats[today]) {
             dailyStats[today] = { totalTime: 0, sites: {}, savedTime: 0, untracked: {} };
         }
-        
+
         dailyStats[today].savedTime = (dailyStats[today].savedTime || 0) + seconds;
-        
+
         await chrome.storage.local.set({ dailyStats: dailyStats });
-        
+
         // Only notify popup every 10 seconds to reduce message spam
         const now = Date.now();
         if (!this.lastSavedTimeUpdate || (now - this.lastSavedTimeUpdate) > 10000) {
             this.lastSavedTimeUpdate = now;
-            
+
             try {
                 chrome.runtime.sendMessage({
                     action: 'updateSavedTime',
                     time: dailyStats[today].savedTime,
                     activeSchedules: this.currentlyActiveSchedules.length
+                }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        // Popup not open, ignore error
+                    }
                 });
             } catch (error) {
                 // Popup may not be open
@@ -1116,22 +1123,22 @@ class BackgroundService {
             const schedules = result.blockingSchedules || [];
             const now = new Date();
             const today = new Date().toDateString();
-            
+
             // Get today's sent notifications or initialize empty object
             const sentToday = result.sentNotificationsToday || {};
             if (!sentToday[today]) {
                 sentToday[today] = {};
             }
-            
+
             const currentTime = now.getHours() * 60 + now.getMinutes();
-            
+
             for (const schedule of schedules) {
                 if (!schedule.active) continue;
-                
+
                 const startTime = this.parseTime(schedule.startTime);
                 const endTime = this.parseTime(schedule.endTime);
                 const scheduleKey = schedule.name.replace(/\s+/g, '_'); // Remove spaces for key
-                
+
                 // Check for 5 minutes before schedule start - EXACT TIME ONLY
                 const fiveMinutesBefore = startTime - 5;
                 const notificationKey1 = `${scheduleKey}_starting_soon`;
@@ -1140,7 +1147,7 @@ class BackgroundService {
                     sentToday[today][notificationKey1] = true;
                     console.log(`✅ Sent 5-min warning for ${schedule.name}`);
                 }
-                
+
                 // Check for schedule start - EXACT TIME ONLY
                 const notificationKey2 = `${scheduleKey}_started`;
                 if (currentTime === startTime && !sentToday[today][notificationKey2]) {
@@ -1148,7 +1155,7 @@ class BackgroundService {
                     sentToday[today][notificationKey2] = true;
                     console.log(`✅ Sent start notification for ${schedule.name}`);
                 }
-                
+
                 // Check for schedule end - EXACT TIME ONLY
                 const notificationKey3 = `${scheduleKey}_ended`;
                 let scheduleEndTime = endTime;
@@ -1168,10 +1175,10 @@ class BackgroundService {
                     }
                 }
             }
-            
+
             // Save updated notification tracking
             await chrome.storage.local.set({ sentNotificationsToday: sentToday });
-            
+
         } catch (error) {
             console.log('Error checking schedule notifications:', error);
         }
@@ -1179,7 +1186,7 @@ class BackgroundService {
 
     async sendScheduleNotification(scheduleName, type) {
         let message, title;
-        
+
         switch (type) {
             case 'starting_soon':
                 title = 'Schedule Starting Soon';
@@ -1196,7 +1203,7 @@ class BackgroundService {
             default:
                 return;
         }
-        
+
         try {
             const iconUrl = chrome.runtime.getURL('assets/icon-48.png');
             chrome.notifications.create(`schedule_${type}_${Date.now()}`, {
@@ -1215,7 +1222,7 @@ class BackgroundService {
         const today = new Date().toDateString();
         const result = await chrome.storage.local.get(['dailyStats']);
         const dailyStats = result.dailyStats || {};
-        
+
         if (dailyStats[today]) {
             dailyStats[today].savedTime = 0;
             await chrome.storage.local.set({ dailyStats: dailyStats });

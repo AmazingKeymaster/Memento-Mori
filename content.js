@@ -1,7 +1,7 @@
 class ContentScriptManager {
     constructor() {
         this.youtubeSettings = {};
-        
+
         // Smart idle detection state
         this.lastMouseMovement = Date.now();
         this.lastKeyPress = Date.now();
@@ -13,18 +13,18 @@ class ContentScriptManager {
         this.scrollingIsDetected = false;
         this.tabIsInFocus = true;
         this.idleThreshold = 30 * 1000; // 30 seconds
-        
+
         this.init();
     }
 
     async init() {
         // Load YouTube settings
         await this.loadYouTubeSettings();
-        
+
         // Apply YouTube modifications if on YouTube
         if (this.isYouTube()) {
             this.applyYouTubeModifications();
-            
+
             // Watch for dynamic content changes
             this.observeYouTubeChanges();
         }
@@ -58,7 +58,7 @@ class ContentScriptManager {
         if (!this.isYouTube()) return;
 
         this.removeExistingStyles();
-        
+
         const styles = [];
 
         // Hide Home Page
@@ -105,7 +105,8 @@ class ContentScriptManager {
         if (this.youtubeSettings.hideSubscriptions) {
             styles.push(`
                 #guide-links-primary a[href="/feed/subscriptions"],
-                ytd-guide-entry-renderer:has([href="/feed/subscriptions"]) { display: none !important; }
+                ytd-guide-entry-renderer:has([href="/feed/subscriptions"]),
+                ytd-mini-guide-entry-renderer[aria-label="Subscriptions"] { display: none !important; }
             `);
         }
 
@@ -190,7 +191,7 @@ class ContentScriptManager {
                 setTimeout(startWatching, 100);
                 return;
             }
-            
+
             // Watch for new videos
             const observer = new MutationObserver((mutations) => {
                 mutations.forEach((mutation) => {
@@ -211,7 +212,7 @@ class ContentScriptManager {
                 subtree: true
             });
         };
-        
+
         startWatching();
 
         // Also try to click the autoplay toggle if it exists
@@ -226,14 +227,14 @@ class ContentScriptManager {
     observeYouTubeChanges() {
         // YouTube is a SPA, so we need to watch for navigation changes
         let lastUrl = location.href;
-        
+
         // Wait for DOM to be ready before observing
         const startObserving = () => {
             if (!document.body) {
                 setTimeout(startObserving, 100);
                 return;
             }
-            
+
             const observer = new MutationObserver(() => {
                 const currentUrl = location.href;
                 if (currentUrl !== lastUrl) {
@@ -250,7 +251,7 @@ class ContentScriptManager {
                 subtree: true
             });
         };
-        
+
         startObserving();
 
         // Also listen for popstate events
@@ -263,7 +264,7 @@ class ContentScriptManager {
 
     setupIdleDetection() {
         console.log('🔍 Setting up smart idle detection...');
-        
+
         // Track mouse movement
         document.addEventListener('mousemove', () => {
             this.lastMouseMovement = Date.now();
@@ -301,7 +302,7 @@ class ContentScriptManager {
 
         // Track video playback
         this.trackVideoPlayback();
-        
+
         // Track audio playback
         this.trackAudioPlayback();
 
@@ -314,13 +315,13 @@ class ContentScriptManager {
         const checkVideos = () => {
             const videos = document.querySelectorAll('video');
             let anyVideoPlaying = false;
-            
+
             videos.forEach(video => {
                 if (!video.paused && !video.ended && video.readyState > 2) {
                     anyVideoPlaying = true;
                 }
             });
-            
+
             this.videoIsPlaying = anyVideoPlaying;
         };
 
@@ -356,13 +357,13 @@ class ContentScriptManager {
         const checkAudio = () => {
             const audioElements = document.querySelectorAll('audio');
             let anyAudioPlaying = false;
-            
+
             audioElements.forEach(audio => {
                 if (!audio.paused && !audio.ended && audio.readyState > 2) {
                     anyAudioPlaying = true;
                 }
             });
-            
+
             this.audioIsPlaying = anyAudioPlaying;
         };
 
@@ -440,7 +441,7 @@ class ContentScriptManager {
 
     setupIdleDetection() {
         console.log('🔍 Setting up smart idle detection...');
-        
+
         // Track mouse movement
         document.addEventListener('mousemove', () => {
             this.lastMouseMovement = Date.now();
@@ -478,7 +479,7 @@ class ContentScriptManager {
 
         // Track video playback
         this.trackVideoPlayback();
-        
+
         // Track audio playback
         this.trackAudioPlayback();
 
@@ -491,13 +492,13 @@ class ContentScriptManager {
         const checkVideos = () => {
             const videos = document.querySelectorAll('video');
             let anyVideoPlaying = false;
-            
+
             videos.forEach(video => {
                 if (!video.paused && !video.ended && video.readyState > 2) {
                     anyVideoPlaying = true;
                 }
             });
-            
+
             this.videoIsPlaying = anyVideoPlaying;
         };
 
@@ -533,13 +534,13 @@ class ContentScriptManager {
         const checkAudio = () => {
             const audioElements = document.querySelectorAll('audio');
             let anyAudioPlaying = false;
-            
+
             audioElements.forEach(audio => {
                 if (!audio.paused && !audio.ended && audio.readyState > 2) {
                     anyAudioPlaying = true;
                 }
             });
-            
+
             this.audioIsPlaying = anyAudioPlaying;
         };
 
@@ -607,6 +608,10 @@ class ContentScriptManager {
                         scrollingIsDetected: this.scrollingIsDetected,
                         tabIsInFocus: this.tabIsInFocus,
                         timeSinceLastActivity: timeSinceLastActivity
+                    }
+                }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        // Background script not ready, ignore
                     }
                 });
             } catch (error) {
