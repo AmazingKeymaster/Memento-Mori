@@ -9,7 +9,6 @@
     "activeTab",
     "alarms",
     "tabs",
-    "management",
     "idle"
   ],
   "host_permissions": [
@@ -20,8 +19,12 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
       "run_at": "document_start"
     }
   ],
@@ -44,8 +47,16 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["blocked.html", "focus.html", "stats.html", "onboarding.html", "assets/*"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "blocked.html",
+        "focus.html",
+        "stats.html",
+        "onboarding.html",
+        "assets/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ],
   "content_security_policy": {

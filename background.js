@@ -191,28 +191,10 @@ class BackgroundService {
             periodInMinutes: 1440 // 24 hours
         });
 
-        // Enhanced PIN protection for extension management
-        if (chrome.management && chrome.management.onUninstalled && chrome.management.onDisabled) {
-            try {
-                // Check for extension deletion attempts
-                chrome.management.onUninstalled.addListener((info) => {
-                    if (info.id === chrome.runtime.id) {
-                        this.checkStrictModeForDeletion();
-                    }
-                });
-
-                // Monitor extension disable attempts
-                chrome.management.onDisabled.addListener((info) => {
-                    if (info.id === chrome.runtime.id) {
-                        this.checkStrictModeForDisabling();
-                    }
-                });
-            } catch (error) {
-                Logger.warn('Management API not available or restricted:', error);
-            }
-        } else {
-            Logger.warn('Chrome management API not available - strict mode protection limited');
-        }
+        // Enhanced PIN protection for extension management - REMOVED due to Chrome Web Store Policy
+        // "Interface Interference" policy prohibits preventing uninstallation/disabling.
+        // Internal strict mode (preventing changes to settings/schedules) is still active in options.js.
+        Logger.info('Strict Mode: Browser-level protection disabled to comply with policies.');
 
         Logger.info('✅ Memento Mori Background Service Ready!');
     }
@@ -449,37 +431,9 @@ class BackgroundService {
         }
     }
 
-    async checkStrictModeForDeletion() {
-        const result = await chrome.storage.local.get(['strictMode', 'strictModePin']);
-        if (result.strictMode && result.strictModePin) {
-            const enteredPin = prompt('🔒 Extension is in Strict Mode.\nEnter your 4-digit PIN to delete:');
-            if (enteredPin !== result.strictModePin) {
-                alert('❌ Incorrect PIN! Extension deletion cancelled.\n\nStrict Mode protects against accidental removal.');
-                return false;
-            }
-            alert('✅ PIN verified. Extension deletion authorized.');
-        }
-        return true;
-    }
+    // checkStrictModeForDeletion removed to comply with Chrome Web Store Policy
 
-    async checkStrictModeForDisabling() {
-        const result = await chrome.storage.local.get(['strictMode', 'strictModePin']);
-        if (result.strictMode && result.strictModePin) {
-            const enteredPin = prompt('🔒 Extension is in Strict Mode.\nEnter your 4-digit PIN to disable:');
-            if (enteredPin !== result.strictModePin) {
-                alert('❌ Incorrect PIN! Extension cannot be disabled in Strict Mode.\n\nThis prevents accidentally disabling your productivity tools.');
-                // Attempt to re-enable the extension if possible
-                try {
-                    chrome.management.setEnabled(chrome.runtime.id, true);
-                } catch (error) {
-                    Logger.error('Could not re-enable extension:', error);
-                }
-                return false;
-            }
-            alert('✅ PIN verified. Extension disable authorized.');
-        }
-        return true;
-    }
+    // checkStrictModeForDisabling removed to comply with Chrome Web Store Policy
 
     async cleanupOldStats() {
         try {

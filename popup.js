@@ -240,45 +240,73 @@ class MementoMori {
             goalItem.className = 'goal-item';
             goalItem.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;';
 
-            // Calculate days until deadline
-            let deadlineInfo = '';
+            // Container for checkbox and label
+            const contentContainer = document.createElement('div');
+            contentContainer.style.cssText = 'display: flex; align-items: center; flex: 1;';
+
+            // Checkbox
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `goal-${index}`;
+            checkbox.checked = goal.completed;
+            checkbox.style.marginRight = '8px';
+            checkbox.addEventListener('change', () => {
+                this.toggleGoal(index);
+            });
+
+            // Label
+            const label = document.createElement('label');
+            label.htmlFor = `goal-${index}`;
+            label.style.flex = '1';
+            label.textContent = goal.text; // Safe assignment
+
+            // Deadline Info
             if (goal.deadline) {
                 const deadlineDate = new Date(goal.deadline);
                 const now = new Date();
                 const daysUntil = Math.ceil((deadlineDate - now) / (1000 * 60 * 60 * 24));
 
+                const deadlineSpan = document.createElement('span');
+                deadlineSpan.style.fontSize = '12px';
+
                 if (daysUntil < 0) {
-                    deadlineInfo = ' <span style="color: #ff6b6b; font-size: 12px;">(OVERDUE)</span>';
+                    deadlineSpan.textContent = ' (OVERDUE)';
+                    deadlineSpan.style.color = '#ff6b6b';
                 } else if (daysUntil === 0) {
-                    deadlineInfo = ' <span style="color: #ffd700; font-size: 12px;">(DUE TODAY)</span>';
+                    deadlineSpan.textContent = ' (DUE TODAY)';
+                    deadlineSpan.style.color = '#ffd700';
                 } else if (daysUntil === 1) {
-                    deadlineInfo = ' <span style="color: #ff9500; font-size: 12px;">(DUE TOMORROW)</span>';
+                    deadlineSpan.textContent = ' (DUE TOMORROW)';
+                    deadlineSpan.style.color = '#ff9500';
                 } else if (daysUntil <= 7) {
-                    deadlineInfo = ` <span style="color: #ff9500; font-size: 12px;">(${daysUntil} days left)</span>`;
+                    deadlineSpan.textContent = ` (${daysUntil} days left)`;
+                    deadlineSpan.style.color = '#ff9500';
                 } else {
-                    deadlineInfo = ` <span style="color: #888; font-size: 12px;">(${daysUntil} days left)</span>`;
+                    deadlineSpan.textContent = ` (${daysUntil} days left)`;
+                    deadlineSpan.style.color = '#888';
                 }
+
+                // Add a space before the span
+                label.appendChild(document.createTextNode(' '));
+                label.appendChild(deadlineSpan);
             }
 
-            goalItem.innerHTML = `
-                <div style="display: flex; align-items: center; flex: 1;">
-                    <input type="checkbox" id="goal-${index}" ${goal.completed ? 'checked' : ''} style="margin-right: 8px;">
-                    <label for="goal-${index}" style="flex: 1;">${goal.text}${deadlineInfo}</label>
-                </div>
-                <button class="delete-goal-btn" data-index="${index}" style="background: #ff4444; color: white; border: none; border-radius: 3px; padding: 4px 8px; font-size: 12px; cursor: pointer; margin-left: 8px;">×</button>
-            `;
+            contentContainer.appendChild(checkbox);
+            contentContainer.appendChild(label);
 
-            const checkbox = goalItem.querySelector('input');
-            checkbox.addEventListener('change', () => {
-                this.toggleGoal(index);
-            });
-
-            const deleteBtn = goalItem.querySelector('.delete-goal-btn');
+            // Delete Button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-goal-btn';
+            deleteBtn.dataset.index = index;
+            deleteBtn.textContent = '×';
+            deleteBtn.style.cssText = 'background: #ff4444; color: white; border: none; border-radius: 3px; padding: 4px 8px; font-size: 12px; cursor: pointer; margin-left: 8px;';
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.deleteGoal(index);
             });
 
+            goalItem.appendChild(contentContainer);
+            goalItem.appendChild(deleteBtn);
             goalsList.appendChild(goalItem);
         });
     }

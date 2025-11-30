@@ -417,12 +417,17 @@ class StatsManager {
         recentGoals.forEach(goal => {
             const goalItem = document.createElement('div');
             goalItem.className = 'goal-item';
-            goalItem.innerHTML = `
-                <div class="goal-text">${goal.text}</div>
-                <div class="goal-status ${goal.completed ? 'goal-completed' : 'goal-pending'}">
-                    ${goal.completed ? 'Completed' : 'Pending'}
-                </div>
-            `;
+
+            const goalText = document.createElement('div');
+            goalText.className = 'goal-text';
+            goalText.textContent = goal.text; // Safe: uses textContent
+
+            const goalStatus = document.createElement('div');
+            goalStatus.className = `goal-status ${goal.completed ? 'goal-completed' : 'goal-pending'}`;
+            goalStatus.textContent = goal.completed ? 'Completed' : 'Pending';
+
+            goalItem.appendChild(goalText);
+            goalItem.appendChild(goalStatus);
             goalsList.appendChild(goalItem);
         });
     }
