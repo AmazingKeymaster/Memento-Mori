@@ -78,7 +78,14 @@ class ContentScriptManager {
                 [is-shorts], 
                 ytd-shorts,
                 #shorts-container,
-                ytd-grid-video-renderer[is-shorts] { display: none !important; }
+                ytd-grid-video-renderer[is-shorts],
+                ytd-guide-entry-renderer:has(a[title="Shorts"]),
+                ytd-mini-guide-entry-renderer[aria-label="Shorts"],
+                a[title="Shorts"],
+                ytd-guide-entry-renderer:has(a[href^="/shorts"]),
+                ytd-mini-guide-entry-renderer[aria-label="Shorts"],
+                /* Mobile/Narrow view */
+                ytd-mini-guide-entry-renderer a[href^="/shorts"]
             `);
         }
 
@@ -104,9 +111,21 @@ class ContentScriptManager {
         // Hide Subscriptions
         if (this.youtubeSettings.hideSubscriptions) {
             styles.push(`
+                /* Hide Subscription Button in Sidebar */
                 #guide-links-primary a[href="/feed/subscriptions"],
                 ytd-guide-entry-renderer:has([href="/feed/subscriptions"]),
-                ytd-mini-guide-entry-renderer[aria-label="Subscriptions"] { display: none !important; }
+                ytd-mini-guide-entry-renderer[aria-label="Subscriptions"],
+                
+                /* Hide Subscription Section Headers */
+                ytd-guide-section-renderer:has(#guide-section-title[aria-label="Subscriptions"]),
+                
+                /* Hide The Actual Subscription List */
+                #sections ytd-guide-section-renderer:has(a[href*="/channel/"]),
+                #sections ytd-guide-section-renderer:has(a[href*="/@"]),
+                ytd-guide-section-renderer #items:has(ytd-guide-entry-renderer a[href*="/channel/"]),
+                
+                /* Mobile/Narrow view */
+                ytd-mini-guide-entry-renderer[aria-label="Subscriptions"]
             `);
         }
 
@@ -114,7 +133,13 @@ class ContentScriptManager {
         if (this.youtubeSettings.hideExplore) {
             styles.push(`
                 #guide-links-primary a[href="/feed/explore"],
-                ytd-guide-entry-renderer:has([href="/feed/explore"]) { display: none !important; }
+                ytd-guide-entry-renderer:has([href="/feed/explore"]),
+                ytd-guide-section-renderer:has(a[href="/feed/explore"]),
+                /* Hide Explore items like Music, Gaming, etc which are usually in the same section or similar */
+                ytd-guide-section-renderer:has(a[href*="/gaming"]),
+                ytd-guide-section-renderer:has(a[href*="/music"]),
+                ytd-guide-section-renderer:has(a[href*="/movies"]),
+                ytd-guide-section-renderer:has(a[href*="/sports"])
             `);
         }
 
@@ -122,7 +147,8 @@ class ContentScriptManager {
         if (this.youtubeSettings.hideTrends) {
             styles.push(`
                 #guide-links-primary a[href="/feed/trending"],
-                ytd-guide-entry-renderer:has([href="/feed/trending"]) { display: none !important; }
+                ytd-guide-entry-renderer:has([href="/feed/trending"]),
+                ytd-guide-section-renderer:has(a[href="/feed/trending"])
             `);
         }
 

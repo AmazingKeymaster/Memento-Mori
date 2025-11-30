@@ -133,15 +133,8 @@ class MementoMori {
     calculateDaysLeft() {
         if (this.userAge === 0) return 0;
 
-        const expectedLifespan = this.lifeExpectancy[this.userContinent] || 79;
-
-        // Handle case where age exceeds life expectancy
-        if (this.userAge >= expectedLifespan) {
-            return -1; // Special case for borrowed time
-        }
-
-        const yearsLeft = Math.max(0, expectedLifespan - this.userAge);
-        return Math.floor(yearsLeft * 365.25);
+        // Use shared helper with birthdate for precision
+        return Helpers.calculateDaysLeft(this.userAge, this.userContinent, this.birthdate);
     }
 
     updateCandle() {

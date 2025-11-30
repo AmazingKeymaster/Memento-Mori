@@ -20,6 +20,15 @@ class StatsManager {
         this.createWeeklyChart();
         this.createTopSitesChart();
         this.loadGoalsList();
+
+        // Bind time range selector
+        const timeRangeSelector = document.getElementById('timeRangeSelector');
+        if (timeRangeSelector) {
+            timeRangeSelector.addEventListener('change', (e) => {
+                this.createTopSitesChart(e.target.value);
+            });
+        }
+
         this.cleanupOldGoals(); // Clean up completed goals from previous days
 
         // Refresh stats every minute for real-time updates
@@ -293,16 +302,36 @@ class StatsManager {
         return weekData;
     }
 
-    createTopSitesChart() {
+    createTopSitesChart(timeRange = 'today') {
         const container = document.getElementById('topSitesChart');
         container.innerHTML = '';
 
-        // Aggregate data from all available history
         const siteTimes = {};
+        const today = new Date();
 
-        // Iterate through all daily stats
+        // Filter dates based on timeRange
+        const relevantDates = [];
+        if (timeRange === 'today') {
+            relevantDates.push(today.toDateString());
+        } else if (timeRange === 'week') {
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                relevantDates.push(d.toDateString());
+            }
+        } else if (timeRange === 'month') {
+            for (let i = 0; i < 30; i++) {
+                const d = new Date(today);
+                d.setDate(d.getDate() - i);
+                relevantDates.push(d.toDateString());
+            }
+        }
+
+        // Iterate through daily stats and filter by date
         for (const [date, stats] of Object.entries(this.dailyStats)) {
-            if (stats.sites) {
+            // Check if this date is within our range
+            // We compare strings directly as they are toDateString() format
+            if (relevantDates.includes(date) && stats.sites) {
                 for (const [site, seconds] of Object.entries(stats.sites)) {
                     if (!siteTimes[site]) siteTimes[site] = 0;
                     siteTimes[site] += seconds;
@@ -310,16 +339,14 @@ class StatsManager {
             }
         }
 
-        // Also check legacy dailyTimeSpent if needed, but dailyStats is primary for real tracking
-
         // Convert to array and sort
         const sortedSites = Object.entries(siteTimes)
             .map(([site, seconds]) => ({ site, minutes: Math.floor(seconds / 60) }))
             .sort((a, b) => b.minutes - a.minutes)
-            .slice(0, 5); // Top 5
+            .slice(0, 10); // Top 10
 
         if (sortedSites.length === 0) {
-            container.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 20px;">No browsing data yet</div>';
+            container.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 20px;">No browsing data for this period</div>';
             return;
         }
 

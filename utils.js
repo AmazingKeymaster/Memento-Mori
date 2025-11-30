@@ -9,34 +9,34 @@
 const Logger = {
     level: 'info', // 'debug', 'info', 'warn', 'error'
     isProduction: true,
-    
+
     setLevel(level) {
         this.level = level;
     },
-    
+
     shouldLog(level) {
         const levels = { debug: 0, info: 1, warn: 2, error: 3 };
         return levels[level] >= levels[this.level];
     },
-    
+
     debug(message, ...args) {
         if (this.shouldLog('debug')) {
             console.log(`[DEBUG] ${message}`, ...args);
         }
     },
-    
+
     info(message, ...args) {
         if (this.shouldLog('info')) {
             console.log(`[INFO] ${message}`, ...args);
         }
     },
-    
+
     warn(message, ...args) {
         if (this.shouldLog('warn')) {
             console.warn(`[WARN] ${message}`, ...args);
         }
     },
-    
+
     error(message, ...args) {
         if (this.shouldLog('error')) {
             console.error(`[ERROR] ${message}`, ...args);
@@ -58,9 +58,7 @@ const Helpers = {
         return age;
     },
 
-    calculateDaysLeft(age, continent) {
-        if (age === 0) return 0;
-        
+    calculateDaysLeft(age, continent, birthdate) {
         const lifeExpectancy = {
             'North America': 79,
             'Europe': 78,
@@ -70,13 +68,36 @@ const Helpers = {
             'Oceania': 81,
             'Antarctica': 79
         };
-        
+
         const expectedLifespan = lifeExpectancy[continent] || 79;
-        
+
+        // If we have a birthdate, calculate precise days
+        if (birthdate) {
+            const birth = new Date(birthdate);
+            const today = new Date();
+
+            // Calculate expected death date
+            const deathDate = new Date(birth);
+            deathDate.setFullYear(birth.getFullYear() + expectedLifespan);
+
+            // Calculate difference in milliseconds
+            const diffTime = deathDate - today;
+
+            if (diffTime < 0) {
+                return -1; // Borrowed time
+            }
+
+            // Convert to days
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        // Fallback to age-based calculation if no birthdate (less precise)
+        if (age === 0) return 0;
+
         if (age >= expectedLifespan) {
             return -1; // Borrowed time
         }
-        
+
         const yearsLeft = Math.max(0, expectedLifespan - age);
         return Math.floor(yearsLeft * 365.25);
     },

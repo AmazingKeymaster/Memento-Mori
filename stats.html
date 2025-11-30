@@ -309,7 +309,15 @@
             </div>
 
             <div class="chart-container">
-                <h3>Top 5 Most Visited Sites</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 0;">Top 10 Most Visited Sites</h3>
+                    <select id="timeRangeSelector"
+                        style="background: rgba(15, 27, 60, 0.6); color: #ffd700; border: 1px solid #ffd700; padding: 5px 10px; border-radius: 5px; font-family: 'Crimson Text', serif; cursor: pointer;">
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                    </select>
+                </div>
                 <div id="topSitesChart" style="padding: 10px;">
                     <!-- Top sites will be generated here -->
                 </div>

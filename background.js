@@ -4,8 +4,8 @@ importScripts('utils.js');
 class BackgroundService {
     constructor() {
         this.activeTabId = null;
-        this.tabStartTimes = new Map();
         this.sessionStartTime = Date.now();
+        // this.tabStartTimes = new Map(); // REMOVED: Using chrome.storage.session instead
         this.keepAlivePort = null;
 
         // REAL TRACKING STATE
@@ -132,6 +132,7 @@ class BackgroundService {
                 this.sendDeadlineNotification(alarm.name.replace('deadlineReminder_', ''));
             } else if (alarm.name === 'dailyAgeUpdate') {
                 this.updateAge();
+                this.cleanupOldStats();
             } else if (alarm.name === 'goalCleanup') {
                 this.cleanupCompletedGoals();
             } else if (alarm.name === 'screenTimeSync') {
@@ -238,7 +239,11 @@ class BackgroundService {
             try {
                 const tab = await chrome.tabs.get(this.activeTabId);
                 if (tab.url && !tab.url.startsWith('chrome-extension://') && !tab.url.startsWith('chrome://')) {
-                    this.tabStartTimes.set(this.activeTabId, Date.now());
+                    // Use session storage for persistence across service worker restarts
+                    const trackingData = {};
+                    trackingData[`tab_${this.activeTabId}`] = Date.now();
+                    await chrome.storage.session.set(trackingData);
+
                     this.isReallyTracking = true;
                     const hostname = new URL(tab.url).hostname.toLowerCase();
                     Logger.info(`🟢 REAL TRACKING STARTED: ${hostname}`);
@@ -250,25 +255,33 @@ class BackgroundService {
     }
 
     async stopRealTracking() {
-        if (this.isReallyTracking && this.activeTabId && this.tabStartTimes.has(this.activeTabId)) {
+        if (this.isReallyTracking && this.activeTabId) {
             try {
-                let tab = null;
-                try {
-                    tab = await chrome.tabs.get(this.activeTabId);
-                } catch (e) {
-                    // Tab might be closed already, which is fine
-                }
+                // Get start time from session storage
+                const result = await chrome.storage.session.get([`tab_${this.activeTabId}`]);
+                const startTime = result[`tab_${this.activeTabId}`];
 
-                if (tab && tab.url) {
-                    const startTime = this.tabStartTimes.get(this.activeTabId);
-                    const endTime = Date.now();
-                    const timeSpentSeconds = Math.floor((endTime - startTime) / 1000);
-
-                    if (timeSpentSeconds >= 1) {
-                        const hostname = new URL(tab.url).hostname.toLowerCase();
-                        await this.processRealScreenTime(hostname, timeSpentSeconds);
-                        Logger.info(`🔴 REAL TRACKING STOPPED: ${hostname} +${timeSpentSeconds}s`);
+                if (startTime) {
+                    let tab = null;
+                    try {
+                        tab = await chrome.tabs.get(this.activeTabId);
+                    } catch (e) {
+                        // Tab might be closed already, which is fine
                     }
+
+                    if (tab && tab.url) {
+                        const endTime = Date.now();
+                        const timeSpentSeconds = Math.floor((endTime - startTime) / 1000);
+
+                        if (timeSpentSeconds >= 1) {
+                            const hostname = new URL(tab.url).hostname.toLowerCase();
+                            await this.processRealScreenTime(hostname, timeSpentSeconds);
+                            Logger.info(`🔴 REAL TRACKING STOPPED: ${hostname} +${timeSpentSeconds}s`);
+                        }
+                    }
+
+                    // Clean up storage
+                    await chrome.storage.session.remove([`tab_${this.activeTabId}`]);
                 }
             } catch (error) {
                 Logger.error('Error stopping real tracking:', error);
@@ -276,7 +289,7 @@ class BackgroundService {
         }
 
         this.isReallyTracking = false;
-        this.tabStartTimes.clear();
+        // this.tabStartTimes.clear(); // REMOVED
     }
 
     async processRealScreenTime(hostname, seconds) {
@@ -466,6 +479,34 @@ class BackgroundService {
             alert('✅ PIN verified. Extension disable authorized.');
         }
         return true;
+    }
+
+    async cleanupOldStats() {
+        try {
+            const result = await chrome.storage.local.get(['dailyStats']);
+            const dailyStats = result.dailyStats || {};
+            const oneYearAgo = new Date();
+            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+            let statsChanged = false;
+            const keys = Object.keys(dailyStats);
+
+            for (const dateStr of keys) {
+                const date = new Date(dateStr);
+                // Check if date is valid and older than 1 year
+                if (!isNaN(date.getTime()) && date < oneYearAgo) {
+                    delete dailyStats[dateStr];
+                    statsChanged = true;
+                }
+            }
+
+            if (statsChanged) {
+                await chrome.storage.local.set({ dailyStats });
+                Logger.info('🧹 Cleaned up old statistics data (> 1 year)');
+            }
+        } catch (error) {
+            Logger.error('Error cleaning up old stats:', error);
+        }
     }
 
     async cleanupCompletedGoals() {
@@ -921,14 +962,26 @@ class BackgroundService {
         let timeWastedThisVisit = 5; // Default 5 seconds if we can't calculate exact time
 
         // Only calculate if we have a recent start time (max 10 minutes ago to avoid huge numbers)
-        if (this.activeTabId && this.tabStartTimes.has(this.activeTabId)) {
-            const startTime = this.tabStartTimes.get(this.activeTabId);
-            const timeSinceStart = Math.floor((currentTime - startTime) / 1000);
+        // Note: trackWastedTime is called less frequently now, logic might need adjustment if used
+        // For now, we'll rely on the session storage if we needed accurate visit times here, 
+        // but this method seems to be a fallback or legacy. 
+        // Let's try to get it from storage if possible, otherwise default to 5s.
 
-            // Only use calculated time if it's reasonable (under 10 minutes)
-            if (timeSinceStart > 0 && timeSinceStart <= 600) {
-                timeWastedThisVisit = timeSinceStart;
+        try {
+            if (this.activeTabId) {
+                const storageResult = await chrome.storage.session.get([`tab_${this.activeTabId}`]);
+                const startTime = storageResult[`tab_${this.activeTabId}`];
+
+                if (startTime) {
+                    const timeSinceStart = Math.floor((currentTime - startTime) / 1000);
+                    // Only use calculated time if it's reasonable (under 10 minutes)
+                    if (timeSinceStart > 0 && timeSinceStart <= 600) {
+                        timeWastedThisVisit = timeSinceStart;
+                    }
+                }
             }
+        } catch (e) {
+            // Ignore storage errors
         }
 
         // Update DAILY stats only (no more cumulative bullshit)
@@ -1253,10 +1306,13 @@ chrome.runtime.onStartup.addListener(() => {
     backgroundService.updateBlockingRules();
 });
 
-// Keep the service worker alive
+// Keep the service worker alive - REMOVED unreliable interval
+// The alarm 'keepAlive' configured in init() is the preferred method for MV3
+/*
 setInterval(() => {
     console.log('💓 Memento Mori heartbeat');
     chrome.storage.local.get(['heartbeat'], () => {
         chrome.storage.local.set({ heartbeat: Date.now() });
     });
 }, 20000); // Every 20 seconds
+*/

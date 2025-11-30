@@ -42,7 +42,7 @@ class FocusMode {
         this.clearTaskBtn.addEventListener('click', () => this.clearTask());
 
         this.backBtn.addEventListener('click', () => {
-            chrome.tabs.update({ url: 'chrome://newtab' });
+            window.close();
         });
 
         this.menuBtn.addEventListener('click', () => {
