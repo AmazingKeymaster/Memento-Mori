@@ -43,7 +43,9 @@ class MementoMori {
     }
 
     async handleStorageChange(changes) {
-        if (changes.userAge || changes.userContinent || changes.birthdate) {
+        // Reload on ANY relevant data change
+        if (changes.userAge || changes.userContinent || changes.birthdate || changes.dailyStats) {
+            console.log('📡 Storage changed, reloading data:', Object.keys(changes));
             await this.loadUserData();
             this.updateDisplay();
             this.updateCandle();
@@ -51,13 +53,15 @@ class MementoMori {
     }
 
     async loadUserData() {
-        const result = await chrome.storage.local.get(['birthdate', 'userAge', 'userContinent', 'goals', 'dailyStats']);
+        const result = await chrome.storage.local.get(['birthdate', 'userAge', 'userContinent', 'goals', 'dailyStats', 'lastUpdateDate']);
 
-        // Calculate age from birthdate if available
+        // ALWAYS recalculate age from birthdate for accuracy
         if (result.birthdate) {
             this.userAge = this.calculateAge(result.birthdate);
+            this.birthdate = result.birthdate;
         } else {
             this.userAge = result.userAge || 0;
+            this.birthdate = '';
         }
 
         this.userContinent = result.userContinent || 'North America';
@@ -67,14 +71,20 @@ class MementoMori {
         const today = new Date().toDateString();
         this.dailyStats = result.dailyStats || {};
 
+        // Check if we've crossed into a new day since last update
+        const lastUpdateDate = result.lastUpdateDate;
+        if (lastUpdateDate !== today) {
+            console.log(`🔄 Day changed from ${lastUpdateDate} to ${today} - forcing recalculation`);
+            // Save current date as last update
+            await chrome.storage.local.set({ lastUpdateDate: today });
+        }
+
         // Screen time and saved time from today's stats (in seconds)
         const todaysStats = this.dailyStats[today] || { totalTime: 0, savedTime: 0 };
         this.totalScreenTime = Math.floor(todaysStats.totalTime / 60); // Convert to minutes
         this.savedTime = Math.floor(todaysStats.savedTime / 60); // Convert to minutes
 
-        this.birthdate = result.birthdate || '';
-
-        console.log(`📊 TODAY'S STATS: Screen Time: ${this.totalScreenTime}m, Saved Time: ${this.savedTime}m`);
+        console.log(`📊 TODAY (${today}): Age: ${this.userAge}, Screen Time: ${this.totalScreenTime}m, Saved Time: ${this.savedTime}m`);
     }
 
     calculateAge(birthdate) {

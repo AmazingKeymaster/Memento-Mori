@@ -629,6 +629,18 @@ class BackgroundService {
         if (result.birthdate) {
             const age = this.calculateAge(result.birthdate);
             await chrome.storage.local.set({ userAge: age });
+
+            // Broadcast to all extension pages that age has been updated
+            Logger.info('📅 Age updated at midnight, broadcasting to extension pages');
+            try {
+                chrome.runtime.sendMessage({ action: 'ageUpdated', age: age }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        // No pages are listening, that's okay
+                    }
+                });
+            } catch (error) {
+                // Ignore - no listeners
+            }
         }
     }
 

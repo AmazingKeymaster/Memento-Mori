@@ -155,14 +155,8 @@ class StatsManager {
     calculateDaysLeft() {
         if (this.userAge === 0) return 0;
 
-        const expectedLifespan = this.lifeExpectancy[this.userContinent] || 79;
-
-        if (this.userAge >= expectedLifespan) {
-            return -1; // Borrowed time
-        }
-
-        const yearsLeft = Math.max(0, expectedLifespan - this.userAge);
-        return Math.floor(yearsLeft * 365.25);
+        // Use shared helper with birthdate for precision (same as popup.js)
+        return Helpers.calculateDaysLeft(this.userAge, this.userContinent, this.birthdate);
     }
 
     calculateProductivityScore() {
