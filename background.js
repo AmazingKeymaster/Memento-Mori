@@ -660,7 +660,7 @@ class BackgroundService {
             age = this.calculateAge(result.birthdate);
         }
 
-        const daysLeft = Helpers.calculateDaysLeft(age, result.userContinent);
+        const daysLeft = Helpers.calculateDaysLeft(age, result.userContinent, result.birthdate);
 
         let baseMessage;
         if (daysLeft < 0) {
@@ -783,9 +783,9 @@ class BackgroundService {
         }
     }
 
-    calculateDaysLeft(age, continent) {
-        // Use shared helper function
-        return Helpers.calculateDaysLeft(age, continent);
+    calculateDaysLeft(age, continent, birthdate) {
+        // Use shared helper function with birthdate for precision
+        return Helpers.calculateDaysLeft(age, continent, birthdate);
     }
 
     async checkAndBlockSite(url, tabId) {
