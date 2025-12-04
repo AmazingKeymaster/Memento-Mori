@@ -32,7 +32,7 @@
 ## 🚀 Installation
 
 ### From Chrome Web Store
-[Download Memento Mori](https://chrome.google.com/webstore/detail/your-extension-id-here)
+[Download Memento Mori](https://chromewebstore.google.com/detail/kjkbmeidpkabfmgjjddogcjlpilhkmcj?utm_source=item-share-cb)
 
 ### From Source (Developer Mode)
 
