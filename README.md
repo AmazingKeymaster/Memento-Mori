@@ -65,7 +65,7 @@
 
 ## 🔒 Privacy
 
-All data (birthdate, stats, settings) is stored locally on your device using `chrome.storage.local`. No data is sent to external servers.
+All data (birthdate, stats, settings) is stored locally on your device using `chrome.storage.local`. No data is sent to external servers. see [Privacy Policy](memento-privacy.md) for more details 
 
 ## 📄 License
 
